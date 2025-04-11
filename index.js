@@ -1,8 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import userRouter from './router/userrouter';
-import pVaultRouter from './router/pVaultrouter';
+import userRouter from './router/userrouter.js';
+import pVaultRouter from './router/pVaultrouter.js';
 
 
 

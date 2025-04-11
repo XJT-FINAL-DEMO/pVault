@@ -2,7 +2,7 @@ import {model,Schema} from 'mongoose';
 
 const facilitySchema = new Schema({
     name:{type:String, required:true},//eg "korlebu"
-    ype:{type:String, enum:["hospital","pharmacy", "labCenter"], required:true},
+    type:{type:String, enum:["hospital","pharmacy", "lab center"], required:true},
     location: {
         type:{type:String, default:"Point"}, //maps
         coordinates:{type:[number], required:true}//exact location

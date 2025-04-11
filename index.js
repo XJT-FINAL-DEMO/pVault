@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
+import userRouter from './router/userrouter.js';
+import pVaultRouter from './router/pVaultrouter.js';
 
 
 
@@ -15,6 +17,8 @@ app.use(express.json());
 app.use(cors());
 
 // routers to be used
+app.use(userRouter);
+app.use(pVaultRouter)
 
 
 

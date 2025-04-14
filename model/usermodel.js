@@ -2,12 +2,12 @@ import mongoose, { model, Schema } from "mongoose";
 
 // reqular user and dr schema
 const userSchema = new Schema({
-    firstName: { type: String, required: tru },
-    lastName: { type: String, required: tru },
-    email: { type: String, required: tru, unique: true },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     role: {
-        type: String, enum: ["patient", "doctor", "labTech", "pharmacist", "nurses", "admin"],
+        type: String, enum: ["patient", "doctor", "labTech", "pharmacist", "nurse", "admin"],
         default: 'patient' //set to default value as the patient
     },
     medicalRecords: [{ type: mongoose.Schema.Types.ObjectId, ref: "medicalRecords" }],

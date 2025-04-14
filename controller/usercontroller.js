@@ -1,4 +1,5 @@
 import { userModel } from "../model/userModel.js";
+import { registerUserMailTemplate, transporter } from "../utils/mailing.js";
 import { loginUserValidator, registerUserValidator, UpdateUserValidator } from "../validators/uservaildator.js";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -33,7 +34,13 @@ export const registerUser = async (req, res) => {
     // save user in mongoDB
     await newUser.save();
 
-    // send registratio mail to user
+    // send registration mail to user
+    await transporter.sendMail({
+        from: process.env.USER_EMAIL,
+        to: value.email,
+        subject:"Welcome to pVault",
+        html: registerUserMailTemplate.replace('{{username}}',value.username)
+    });
 
     // return a response
     res.status(201).json('Successfully Registerd😊')

@@ -1,4 +1,4 @@
-import { required } from 'joi';
+// import { required } from 'joi';
 import {model,Schema} from 'mongoose';
 
 const facilitySchema = new Schema({
@@ -6,7 +6,7 @@ const facilitySchema = new Schema({
     type:{type:String, enum:["hospital","pharmacy", "lab center"], required:true},
     location: {
         type:{type:String, default:"Point"}, //maps
-        coordinates:{type:[number], required:true,
+        coordinates:{type:[Number], required:true,
             validator: (coords) => coords.length == 2 &&
             coords[0] >= -180 && coords[0] <=180 && //longitude validation
             coords[1] >= -90 && coords[1] <=90,

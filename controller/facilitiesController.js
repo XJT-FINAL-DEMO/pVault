@@ -1,7 +1,7 @@
 import { facilityModel } from '../model/facilityModel.js';
 
 
-
+// add facilities
 
 
 //find nearest hospitals 

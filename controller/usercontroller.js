@@ -36,7 +36,7 @@ export const registerUser = async (req, res) => {
 
     // send registration mail to user
     await transporter.sendMail({
-        from: process.env.USER_EMAIL,
+        from: 'connect.pvault@gmail.com',
         to: value.email,
         subject: "Welcome to pVault",
         html: registerUserMailTemplate.replace('{{username}}', value.username)

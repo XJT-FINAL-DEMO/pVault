@@ -7,11 +7,11 @@ export const registerUserValidator = Joi.object({
     firstName: Joi.string().regex(/^[A-Za-z]+$/).required(),
     lastName: Joi.string().regex(/^[A-Za-z]+$/).required(),
     email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }).required(),
-    password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9](4,30)$')).required(),
+    password: Joi.string().required(),
     confirmPassword: Joi.string().valid(Joi.ref('password')),
     role: Joi.string().valid('patient', 'labTech', 'nurse', 'pharmacist', 'doctor', 'admin').optional(),//default role is patient
     location: Joi.string().allow(null, '').optional(),
-    medicalRecords: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/)).optional(),
+    // medicalRecords: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/)).optional(),
     appointments: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/)).optional(),
 }).with("password", "confirmPassword");
 
@@ -32,6 +32,6 @@ export const UpdateUserValidator = Joi.object({
     confirmPassword: Joi.string().valid(Joi.ref('password')),
     role: Joi.string().valid('patient', 'labTech', 'nurse', 'pharmacist', 'doctor', 'admin').optional(),//default role is patient
     location: Joi.string().allow(null, '').optional(),
-    medicalRecords: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/)).optional(),
+    // medicalRecords: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/)).optional(),
     appointments: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/)).optional(),
 })

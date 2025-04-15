@@ -1,14 +1,14 @@
 import Joi, { date } from 'joi';
 
-// medicalRecords Validator
-export const medicalRecordsValidator = Joi.object({
-    user_id:Joi.string().regex(/^[0-9a-fA-f]{24}$/).required(),
-    facility_id:Joi.string().regex(/^[0-9a-fA-f]{24}$/).required(),
-    date: Joi.date().required(),
-    diagnosis:Joi.string().required(),
-    treatment:Joi.string().allow(null,'').optional(),
-    notes:Joi.string().allow(null,'').optional(),
-});
+// // medicalRecords Validator
+// export const medicalRecordsValidator = Joi.object({
+//     user_id:Joi.string().regex(/^[0-9a-fA-f]{24}$/).required(),
+//     facility_id:Joi.string().regex(/^[0-9a-fA-f]{24}$/).required(),
+//     date: Joi.date().required(),
+//     diagnosis:Joi.string().required(),
+//     treatment:Joi.string().allow(null,'').optional(),
+//     notes:Joi.string().allow(null,'').optional(),
+// });
 
 
 // appointment validator

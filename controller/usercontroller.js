@@ -22,11 +22,11 @@ export const registerUser = async (req, res) => {
         return res.status(409).json('Esisting User')
     }
     // hash plaintex password
-    const hashPassword = bcrypt.hashSync(value.Password, 10);
+    const hashPassword = bcrypt.hashSync(value.password, 10);
     // create user records in database
     const newUser = await userModel.create({
         ...value, password: hashPassword
-    });
+    }); console.log(value)
     // generate access token for user
     const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
     res.status(201).json({ newUser, token });

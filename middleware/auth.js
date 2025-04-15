@@ -2,8 +2,8 @@ import { userModel } from "../model/usermodel.js";
 import { expressjwt } from "express-jwt";
 
 // authenticate users at signup
-export const isAuthenticated = expressjwt = ({
-    secrete: process.env.JWT_SECRET,
+export const isAuthenticated = expressjwt ({
+    secret: process.env.JWT_SECRET,
     algorithms: ["HS256"]
 
 });

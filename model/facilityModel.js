@@ -27,6 +27,7 @@ const facilitySchema = new Schema({
     timestamps:true
 });
 
+
 // geospatial index for nearby search
 facilitySchema.index({location:"2dsphere"});
 

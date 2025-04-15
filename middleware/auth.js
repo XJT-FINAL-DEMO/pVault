@@ -1,9 +1,9 @@
-import { userModel } from "../model/userModel.js";
+import { userModel } from "../model/usermodel.js";
 import { expressjwt } from "express-jwt";
 
 // authenticate users at signup
 export const isAuthenticated = expressjwt = ({
-    secrete:process.env.JWT_SECRET,
+    secrete: process.env.JWT_SECRET,
     algorithms: ["HS256"]
 
 });
@@ -14,7 +14,7 @@ export const isAuthorized = (roles) => {
 
         if (roles?.includes(user.role)) {
             next();
-        }else {
+        } else {
             res.status(400).json('Soor, Not Authorized')
         }
     }

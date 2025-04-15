@@ -1,4 +1,4 @@
-import { userModel } from "../model/userModel.js";
+import { userModel } from "../model/usermodel.js";
 import { registerUserMailTemplate, transporter } from "../utils/mailing.js";
 import { loginUserValidator, registerUserValidator, UpdateUserValidator } from "../validators/uservaildator.js";
 import bcrypt from 'bcrypt';
@@ -38,8 +38,8 @@ export const registerUser = async (req, res) => {
     await transporter.sendMail({
         from: process.env.USER_EMAIL,
         to: value.email,
-        subject:"Welcome to pVault",
-        html: registerUserMailTemplate.replace('{{username}}',value.username)
+        subject: "Welcome to pVault",
+        html: registerUserMailTemplate.replace('{{username}}', value.username)
     });
 
     // return a response
@@ -115,12 +115,12 @@ export const updateUser = async (req, res) => {
 }
 
 // get all users 
-export const getAllUsers = async(req,res) => {
+export const getAllUsers = async (req, res) => {
     try {
         const users = await userModel.find();
         res.json(users);
     } catch (error) {
-        res.json({message: 'User Not Found!'})
+        res.json({ message: 'User Not Found!' })
 
     }
 }

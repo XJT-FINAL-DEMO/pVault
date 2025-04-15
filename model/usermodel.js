@@ -1,4 +1,4 @@
-import mongoose, { model, Schema } from "mongoose";
+import mongoose,{model,Schema } from "mongoose";
 
 // reqular user and dr schema
 const userSchema = new Schema({
@@ -10,7 +10,7 @@ const userSchema = new Schema({
         type: String, enum: ["patient", "doctor", "labTech", "pharmacist", "nurse", "admin"],
         default: 'patient' //set to default value as the patient
     },
-    medicalRecords: [{ type: mongoose.Schema.Types.ObjectId, ref: "medicalRecords" }],
+    // medicalRecords: [{ type: mongoose.Schema.Types.ObjectId, ref: "medicalRecords" }],
     appointments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Appointments" }],
 }, {
     timestamps: true

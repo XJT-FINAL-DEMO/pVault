@@ -1,4 +1,4 @@
-import { appointmentsModel, Appointments } from '../model/appointmentsModel.js';
+import { appointmentsModel } from '../model/appointmentsModel.js';
 
 
 // book appointment with dr and 
@@ -104,7 +104,7 @@ export const getAppointments = async (req, res) => {
             appointments
         })
     } catch (error) {
-        res.status(500).jason({error:"It seems the booking is stuck"});
+        res.status(500).jason({error:"It seems the booking is stuck"})
         
     }
 }

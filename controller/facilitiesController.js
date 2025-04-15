@@ -1,10 +1,15 @@
 import { facilityModel } from '../model/facilityModel.js';
 
 
-// add facilities
+// add hospitals
+
+//and labs 
+
+//and pharmacy 
 
 
-//find nearest hospitals 
+
+//find nearest facility ; hospital,pharmacy,labtech, 
 export const getNearbyFacility = async (req, res) => {
     try {
         // 

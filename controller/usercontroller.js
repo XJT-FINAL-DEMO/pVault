@@ -1,4 +1,4 @@
-import { userModel } from "../model/userModel.js";
+import { userModel } from "../models/userModel.js";
 import { registerUserMailTemplate, transporter } from "../utils/mailing.js";
 import { loginUserValidator, registerUserValidator, UpdateUserValidator } from "../validators/uservaildator.js";
 import bcrypt from 'bcrypt';
@@ -26,13 +26,9 @@ export const registerUser = async (req, res) => {
     // create user records in database
     const newUser = await userModel.create({
         ...value, password: hashPassword
-    }); console.log(value)
+    });
     // generate access token for user
     const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
-    res.status(201).json({ newUser, token });
-
-    // save user in mongoDB
-    await newUser.save();
 
     // send registration mail to user
     await transporter.sendMail({
@@ -43,7 +39,11 @@ export const registerUser = async (req, res) => {
     });
 
     // return a response
-    res.status(201).json('Successfully Registerd😊')
+    res.status(201).json({
+        message:'Successfully Registerd😊',
+        user: newUser,
+        token
+});
 };
 
 // login user

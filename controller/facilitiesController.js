@@ -1,14 +1,15 @@
-import { facilityModel } from '../model/facilityModel.js';
+import { facilityModel } from '../models/facilityModel.js';
 
 
 // add hospitals
-export const addHospitals = async (req, res) =>{
+export const addHospitals = async (req, res) => {
     try {
-        const {error, value} = facilityModel({
+        const { error, value } = facilityModel({
             ...req.body,
-        },{abortEarly: false})
+        }, { abortEarly: false })
     } catch (error) {
-        
+        return res.status(500).json({ error: '' })
+
     }
 }
 

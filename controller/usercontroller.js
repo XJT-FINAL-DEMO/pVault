@@ -1,4 +1,4 @@
-import { userModel } from "../model/usermodel.js";
+import { userModel } from "../model/userModel.js";
 import { registerUserMailTemplate, transporter } from "../utils/mailing.js";
 import { loginUserValidator, registerUserValidator, UpdateUserValidator } from "../validators/uservaildator.js";
 import bcrypt from 'bcrypt';
@@ -104,7 +104,7 @@ export const updateUser = async (req, res) => {
         );
         // return response
         const { password, ...userWithoutPassword } = updateUser.toObject();
-        res.sstatus(200).json({
+        res.status(200).json({
             message: 'Upadte Successful',
             data: userWithoutPassword
         });

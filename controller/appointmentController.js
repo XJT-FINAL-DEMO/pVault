@@ -1,4 +1,5 @@
 import { appointmentsModel } from '../models/appointmentsModel.js';
+import { preCheckInMailTemplate } from '../utils/mailing.js';
 
 
 // book appointment with dr and 
@@ -51,62 +52,61 @@ export const bookAppointment = async (req, res) => {
 
 // pre check in online 
 
-export const preCheckIn = async (req,res) => {
+export const CheckIn = async (req, res) => {
     try {
-        // get appointment id
-        const {appointmentId} = req.body;
-        const appointment = await userFindAppointment(appointmentId);
+        // get the appointment info by id from patient
+        const { appointmentId } = req.body;
+        const appointment = await patientFindAppointment(appointmentId);
 
         if (!appointment) {
-            return res.status(404).json({erro: "sorry we couldn't find your appoint ment. Try Agian!"})
-        }
-        appointment.status = 'checked-in';
+            return res.status(400).json({ error: "Sorry, we couldn't find appointment" });
+        } appointment.status = "Checked In";
 
-        // update queue position randomly and find room
-        appointment.queuePosition = Math.floor(Math.random() * 10) +1;
-        const roomLocation = await userFindRoomLocation(appointment.randomNumber);
-        // set the location based on room number
-        appointment.location = roomLocation;
-        await userSaveAppointment(appointment);
+        // updat queue poisition
+        appointment.queuePosition = Math.floor(Math.random() * 3) + 1;
 
-        // send email to user
-        await drSendEmail(appointment.userEmail, appointment);
+        appointment.location = "treys house";
+
+        await patientnewAppointment.save(appointment);
+
+        // send confirmation
+        await confirmSendEmail(appointment.userEmail, appointment);
+        // confirmation details
         res.json({
-            message:"You're checked in!, Please check your email for details",
-            appointment:{
-                queuePosition: appointment.queuePosition,
-                location: appointment.location
+            message: "You've been Checked In",
+            appointment: {
+                queuePosition: appointment.queuePosition, location: appointment.location
             }
         });
-        // update the queue in-realtime
-        userUpdateQueueInRealTime(appointmentId, appointment.queuePosition);
+
+        // update real time queue positiion
+        queueRealTimeUpdate(appointmentId, appointment.queuePosition);
 
     } catch (error) {
-        res.status(500).json({error:"Something went Wrong, Try again later.!"})
-        
+        res.status(500).json({ error: "Something went Wrong, Try again later.!" });
     }
 }
 
 // get/view user appointment details 
 export const getAppointments = async (req, res) => {
     try {
-        const {userId, role} =req.user;
+        const { userId, role } = req.user;
         let appointments;
-        if (role == "patient"){
-            appointments = await appointments.find({patient:userId}).populate('doctor','name speciality');
-        } else if (role == "doctor"){
-            appointments = await appointments.find({doctor:userId}).populate('patient', 'name email');
+        if (role == "patient") {
+            appointments = await appointments.find({ patient: userId }).populate('doctor', 'name speciality');
+        } else if (role == "doctor") {
+            appointments = await appointments.find({ doctor: userId }).populate('patient', 'name email');
         } else if (role == "pharmacist") {
-            appointments == await appointments.find({pharmasist:userId}).populate('pharmacist', 'name email');
-        }else {
-            return res.status(403).json({error:"Your neither a Patient or Dr"})
+            appointments == await appointments.find({ pharmasist: userId }).populate('pharmacist', 'name email');
+        } else {
+            return res.status(403).json({ error: "Your neither a Patient or Dr" })
         }
         res.json({
             message: "See Your Appointments!",
             appointments
         })
     } catch (error) {
-        res.status(500).jason({error:"It seems the booking is stuck"})
-        
+        res.status(500).jason({ error: "It seems the booking is stuck" })
+
     }
 }

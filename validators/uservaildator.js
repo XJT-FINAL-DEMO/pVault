@@ -30,7 +30,7 @@ export const UpdateUserValidator = Joi.object({
     email: Joi.string().optional(),
     password: Joi.string().optional(),
     confirmPassword: Joi.string().valid(Joi.ref('password')),
-    role: Joi.string().valid('patient', 'labTech', 'nurse', 'pharmacist', 'doctor', 'admin').optional(),//default role is patient
+    role: Joi.string().valid('patient', 'labTech','pharmacist', 'doctor', 'admin').optional(),//default role is patient
     location: Joi.string().allow(null, '').optional(),
     // medicalRecords: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/)).optional(),
     appointments: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/)).optional(),

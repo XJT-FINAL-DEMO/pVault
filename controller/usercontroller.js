@@ -1,6 +1,6 @@
 import { userModel } from "../models/userModel.js";
-import { registerUserMailTemplate, transporter } from "../utils/mailing.js";
-import { loginUserValidator, registerUserValidator, UpdateUserValidator } from "../validators/uservaildator.js";
+import { registerUserMailTemplate, mailTransporter } from "../utils/mailing.js";
+import { loginUserValidator, registerUserValidator, UpdateUserValidator } from "../validators/userVaildator.js";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
@@ -31,19 +31,19 @@ export const registerUser = async (req, res) => {
     const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
 
     // send registration mail to user
-    await transporter.sendMail({
-        from: 'connect.pvault@gmail.com',
+    await mailTransporter.sendMail({
+        from:process.env.USER_EMAIL,
         to: value.email,
         subject: "Welcome to pVault",
-        html: registerUserMailTemplate.replace('{{username}}', value.username)
-    });
+        html: registerUserMailTemplate.replace('{{lastName}}', value.lastName)
+    })
 
     // return a response
     res.status(201).json({
-        message:'Successfully Registerd😊',
+        message: 'Successfully Registerd😊',
         user: newUser,
         token
-});
+    });
 };
 
 // login user

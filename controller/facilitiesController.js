@@ -1,21 +1,29 @@
 import { facilityModel } from '../models/facilityModel.js';
 
 
-// add hospitals
-export const addHospitals = async (req, res) => {
+// add hospitals or pharmacy or lab center
+export const addFacility = async (req, res) => {
     try {
-        const { error, value } = facilityModel({
+        const newFacility =new facilityModel({
             ...req.body,
-        }, { abortEarly: false })
+        }, { abortEarly: false });
+        // validate facility type
+        const validTypes = ["hospital", "pharmacy", "labCenter"];
+        if (!validTypes.includes(newFacility.type)) {
+            return res.status(400).json({error: "Invalid facility type! Use 'hospital', 'pharmacy', or 'labCenter'"});
+        }
+        await newFacility.save();
+        res.status(201).json({message:`New${newFacility.type} Added Succefully🥳`})
     } catch (error) {
-        return res.status(500).json({ error: '' })
+        if (error.name == 'ValidationError'){
+            return res.status(400).json({
+                error:"Validation failed 😞" + error.message
+            });
+        }
+        return res.status(500).json({ error:"Something is Wrong😞"+ error.message })
 
     }
 }
-
-//and labs 
-
-//and pharmacy 
 
 
 
@@ -23,23 +31,22 @@ export const addHospitals = async (req, res) => {
 export const getNearbyFacility = async (req, res) => {
     try {
         // 
-        const { searchTerm } = req.query; //user only send search word
+        const { searchTerm, lat, lng } = req.query; //user only send search word and auto detected location from the front
 
         // validate map search term to facility
         const typeMap = {
-            hospital: 'hospital',
-            pharmacy: 'pharmacy',
-            'lab center': 'lab center',
-            'medical lab': 'lab center'
+            hospital: "hospital",
+            pharmacy: "pharmacy",
+            'lab center': "lab center",
+            'medical lab': "lab center"
         };
         const facilityType = typeMap[searchTerm.toLowerCase()];
         if (!facilityType) {
             return res.status(400).json({ error: "Search 'hospital','pharmacy, or 'lab center'!" });
         }
 
-        // get longitude and latitude from front end
-        let { lat, lng } = req.query;
-        if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
+        // check if auto location detected are numbers
+        if (!lat || !lng || isNaN(parseFloat(lat)) || isNaN(parseFloat(lng))) {
             return res.status(400).json({ error: "Location access denied! Allow Location 🌍" });
         }
 
@@ -62,7 +69,7 @@ export const getNearbyFacility = async (req, res) => {
         });
 
     } catch (error) {
-        res.status(500).json({ error: "Server error" })
+        res.status(500).json({ error: "Server error" });
 
     }
 };

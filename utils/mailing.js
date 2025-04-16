@@ -2,15 +2,15 @@ import { createTransport } from "nodemailer";
 import dotenv from "dotenv";
 dotenv.config();
 
-export const transporter = createTransport({
+export const mailTransporter = createTransport({
     host: "smtp.gmail.com",
     port: 587,
     secure: false,
     auth: {
         user: process.env.USER_EMAIL,
-        pass: process.env.USER_PASSWORD,
-    },
-});
+        pass: process.env.USER_PASSWORD
+    }
+})
 
 export const registerUserMailTemplate = `<!DOCTYPE html>
 <html>
@@ -35,7 +35,7 @@ export const registerUserMailTemplate = `<!DOCTYPE html>
     
     <div class="content">
         <h2>Welcome to [Your Medical Platform]!</h2>
-        <p>Dear [Patient's First Name],</p>
+        <p>Dear {{lastName}},</p>
         
         <p>Thank you for registering with [Your Medical Platform] - your new hub for seamless healthcare management. We're honored to be part of your wellness journey.</p>
         
@@ -74,6 +74,15 @@ export const registerUserMailTemplate = `<!DOCTYPE html>
 </html>`
 
 
+
+
+
+export const preCheckInMailTemplate = `<!DOCTYPE html>
+
+
+// trey decides 
+
+</html>`
 
 // export const sendEmail = async (to, subject, html) => {
 //     const send = await transporter.sendMail({

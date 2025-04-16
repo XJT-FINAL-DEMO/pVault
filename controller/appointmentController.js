@@ -1,4 +1,4 @@
-import { appointmentsModel } from '../model/appointmentsModel.js';
+import { appointmentsModel } from '../models/appointmentsModel.js';
 
 
 // book appointment with dr and 
@@ -93,10 +93,12 @@ export const getAppointments = async (req, res) => {
         const {userId, role} =req.user;
         let appointments;
         if (role == "patient"){
-            appointments = await Appointments.find({patient:userId}).populate('doctor','name speciality');
+            appointments = await appointments.find({patient:userId}).populate('doctor','name speciality');
         } else if (role == "doctor"){
-            appointments = await Appointments.find({doctor:userId}).populate('patient', 'name email');
-        } else {
+            appointments = await appointments.find({doctor:userId}).populate('patient', 'name email');
+        } else if (role == "pharmacist") {
+            appointments == await appointments.find({pharmasist:userId}).populate('pharmacist', 'name email');
+        }else {
             return res.status(403).json({error:"Your neither a Patient or Dr"})
         }
         res.json({

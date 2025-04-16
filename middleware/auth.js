@@ -1,4 +1,4 @@
-import { userModel } from "../model/usermodel.js";
+import { userModel } from "../models/userModel.js";
 import { expressjwt } from "express-jwt";
 
 // authenticate users at signup

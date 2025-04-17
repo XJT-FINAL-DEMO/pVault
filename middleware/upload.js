@@ -1,5 +1,5 @@
 import multer from "multer";
-import {v2 as cloudinary} from cloudinary;
+import {v2 as cloudinary} from "cloudinary";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 
 
@@ -9,3 +9,13 @@ api_key: process.env.CLOUDINARY_API_KEY,
 api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+export const blogsCoverPhotoUpload = multer({
+    storage: new CloudinaryStorage({
+        cloudinary,
+        params: {
+            folder: 'pVault/blogs/pictures'
+        }
+    })
+}).single('image')
+
+export {cloudinary}

@@ -1,5 +1,5 @@
-import { appointmentsModel } from '../models/appointmentsModel.js';
-import { preCheckInMailTemplate } from '../utils/mailing.js';
+import { appointmentsModel } from '../model/appointmentsModel.js';
+import { appointmentConfirmationMailTemplate, preCheckInMailTemplate } from '../utils/mailing.js';
 
 
 // book appointment with dr and 
@@ -37,6 +37,12 @@ export const bookAppointment = async (req, res) => {
         });
 
         //send appointment confirmation email to user
+        await mailTransporter.sendMail({
+                from:process.env.USER_EMAIL,
+                to: value.email,
+                subject: "You have sucessfully created an appointment with pVault",
+                html: appointmentConfirmationMailTemplate.replace('{{lastName}}', value.lastName)
+            })
 
         //Send a sucess response
         res.json({

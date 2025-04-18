@@ -1,4 +1,4 @@
-import { userModel } from "../models/userModel.js";
+import { userModel } from "../model/userModel.js";
 import { registerUserMailTemplate, mailTransporter } from "../utils/mailing.js";
 import { loginUserValidator, registerUserValidator, UpdateUserValidator } from "../validators/userVaildator.js";
 import bcrypt from 'bcrypt';

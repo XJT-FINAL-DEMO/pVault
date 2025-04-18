@@ -1,4 +1,4 @@
-import { userModel } from "../models/userModel.js";
+import { userModel } from "../model/userModel.js";
 import { expressjwt } from "express-jwt";
 
 // authenticate users at signup
@@ -15,7 +15,7 @@ export const isAuthorized = (roles) => {
         if (roles?.includes(user.role)) {
             next();
         } else {
-            res.status(400).json('Soor, Not Authorized')
+            res.status(400).json('Sorry, Not Authorized')
         }
     }
 };

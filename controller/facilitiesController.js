@@ -1,4 +1,4 @@
-import { facilityModel } from '../models/facilityModel.js';
+import { facilityModel } from '../model/facilityModel.js';
 
 
 // add hospitals or pharmacy or lab center

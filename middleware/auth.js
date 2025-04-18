@@ -9,7 +9,7 @@ export const isAuthenticated = expressjwt ({
 });
 
 export const isAuthorized = (roles) => {
-    return async (req, resizeBy, next) => {
+    return async (req, res, next) => {
         const user = await userModel.findById(req.auth.id);
 
         if (roles?.includes(user.role)) {

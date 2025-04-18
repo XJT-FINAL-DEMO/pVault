@@ -22,7 +22,13 @@ const facilitySchema = new Schema({
         day:{type: String, required:true},//"Mon", "Tues"...
         hours:{type: String, required:true} //"6:00 Am - 2:00 PM"
     }],
-    services:[String]
+    is247: {
+        type: Boolean,
+        default: false},
+    services:[{type:String,}],
+    isDeleted: { type: Boolean, default: false},
+    deletedAt: { type: Date, default: null},
+    pictures:[{type:String, required:true}]
 },{
     timestamps:true
 });

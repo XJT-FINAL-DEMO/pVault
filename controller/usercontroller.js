@@ -1,6 +1,6 @@
 import { userModel } from "../model/userModel.js";
 import { registerUserMailTemplate, mailTransporter } from "../utils/mailing.js";
-import { loginUserValidator, registerUserValidator, UpdateUserValidator } from "../validators/userVaildator.js";
+import { loginUserValidator, registerUserValidator, UpdateUserValidator } from "../validators/userValidator.js";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 

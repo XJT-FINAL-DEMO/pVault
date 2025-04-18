@@ -5,16 +5,16 @@ import { appointmentConfirmationMailTemplate, preCheckInMailTemplate } from '../
 // book appointment with dr and 
 export const bookAppointment = async (req, res) => {
     try {
-        //1.Get data from the request(user,doctor,data)
+        //Get data from the request(user,doctor,data)
         const { userId, doctorId, date }
             = req.body;
-        //2. Check if user and doctor exist
+        //Check if user and doctor exist
         const user = await user.findById(userId);
         const doctor = await doctor.findById(doctorId);
         if (!user || !doctor) {
             return res.status(404).json({ error: "User or doctor not found!" });
         }
-        //3. Check if the doctor is available at that time
+        //Check if the doctor is available at that time
         const existingAppointment = await appointmentsModel.findOne({
             doctor: doctorId,
             date: date
@@ -23,7 +23,7 @@ export const bookAppointment = async (req, res) => {
             return res.status(400).json({ error: "Doctor is busy! Pick another time" })
         }
 
-        //4. Check if the date is in the future(nott in the past)
+        //Check if the date is in the future(nott in the past)
         if (newDate(date) < new Date()) {
             return res.status(400).json({ error: "Pick a future date" })
         }
@@ -56,8 +56,11 @@ export const bookAppointment = async (req, res) => {
 
 };
 
-// pre check in online 
+// rechedule appointments [dr & patients]
 
+
+
+// pre check in online 
 export const CheckIn = async (req, res) => {
     try {
         // get the appointment info by id from patient
@@ -105,7 +108,7 @@ export const getAppointments = async (req, res) => {
         } else if (role == "pharmacist") {
             appointments == await appointments.find({ pharmasist: userId }).populate('pharmacist', 'name email');
         } else {
-            return res.status(403).json({ error: "Your neither a Patient or Dr" })
+            return res.status(403).json({ error: "Your neither a Patient, Nurse nor Dr" })
         }
         res.json({
             message: "See Your Appointments!",
@@ -116,3 +119,11 @@ export const getAppointments = async (req, res) => {
 
     }
 }
+
+// delete appointment [soft delete]
+
+// view deleted Appointment
+
+// restore appointment
+
+// admin permanently delete appointment

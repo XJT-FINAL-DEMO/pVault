@@ -21,7 +21,7 @@ export const createBlog = async (req, res, next) => {
           message: "Image upload failed. Please check:",
           details: [
             "1. File is an image (jpg, png, webp)",
-            "2. Size < 10MB",
+            "2. Size < 5MB",
             "3. Field name is exactly 'image'"
           ]
         });

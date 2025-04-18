@@ -1,27 +1,41 @@
 import { Router } from "express";
-import { addFacility, getNearbyFacility } from "../controller/facilitiesController.js";
+import { addFacility, getFacilities, getNearbyFacility } from "../controller/facilitiesController.js";
+import { addPrescription, getAllprescriptions, updatePrescription } from "../controller/prescriptController.js";
 import { bookAppointment, getAppointments,CheckIn } from "../controller/appointmentController.js";
 import { isAuthenticated, isAuthorized } from "../middleware/auth.js";
 import { createBlog, deleteBlog, getAuthorBlogs, getBlog, getBlogs, updateBlog } from "../controller/blogsController.js";
-import { blogsCoverPhotoUpload } from "../middleware/upload.js";
+import { blogsCoverPhotoUpload,prescriptionUpload } from "../middleware/upload.js";
 
 
 
 const pVaultRouter = Router();
 
+// FACILITY ROUTES
+pVaultRouter.post("/api/facility",isAuthenticated,isAuthorized(["doctor","pharmacist","admin"]), addFacility)
+
+pVaultRouter.get("/api/facilities", isAuthenticated,getFacilities)
+
+pVaultRouter.patch("api/facility/:id", isAuthenticated, isAuthorized(['doctor','admin']))
+
 pVaultRouter.get("/api/facility", isAuthenticated, getNearbyFacility)
 
-pVaultRouter.post("/api/facility",isAuthenticated, addFacility)
 
-pVaultRouter.post("/api/book/",isAuthenticated, bookAppointment)
+// APPOINTMENTS ROUTES
+pVaultRouter.post("/api/bookAppointment/",isAuthenticated, bookAppointment)
 
 pVaultRouter.post("/api/checkIn/",isAuthenticated, CheckIn)
 
-pVaultRouter.get("/", isAuthenticated, getAppointments)
+pVaultRouter.get("/api/appointment/:id", isAuthenticated, getAppointments)
 
 
+// PRESCRIPTIONS
+pVaultRouter.post("/",prescriptionUpload.array("prescriptions"), isAuthenticated,isAuthorized(['patient', 'doctor']), addPrescription)
 
-//BLOGS ROUTER
+pVaultRouter.get("/api/prescriptions", isAuthenticated,getAllprescriptions)
+
+pVaultRouter.patch("/api/prescription/:id", isAuthenticated, updatePrescription)
+
+//BLOGS ROUTES
 pVaultRouter.post("/api/blogs", isAuthenticated, isAuthorized(["doctor", "nurse", "pharmacist", "admin"]),blogsCoverPhotoUpload, createBlog)
 
 pVaultRouter.get("/api/blogs", getBlogs)

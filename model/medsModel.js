@@ -7,6 +7,7 @@ const medsSchema = new Schema ({
     manufacturer:{type:String, required:true},
     price:{type:Number, required:true},
     expiryDate:{Date},
+    picture:[{String}],
     pharmacist:{type: mongoose.Schema.Type.ObjectId, ref:'User'}
 },{timestamps:true});
 

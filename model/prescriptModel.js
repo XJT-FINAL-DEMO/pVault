@@ -6,14 +6,15 @@ const prescriptionSchema = new Schema({
     pictures: [{ type: String, requuired: true }],
     status: {
         type: String,
-        enum: ['pending', 'approved', 'rejected', 'deilivering', 'delivered'], default: 'pending'
+        enum: ['pending', 'approved', 'rejected', 'deilivering', 'delivered'], 
+        default: "pending"
     },
     medicines: [{
         medicine: { type: mongoose.Schema.Types.ObjectId, ref: "Medication" }, quantity: Number
     }],
     deliveryAddress: { type: String, requuired: true },
     deliveryStatus: {
-        enum: ['pending', 'delivering', 'delivered'], default: 'pending'
+        enum: ['pending', 'delivering', 'delivered']
     }
 }, {
     timestamps: true,

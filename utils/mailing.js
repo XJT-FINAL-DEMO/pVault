@@ -125,7 +125,7 @@ export const appointmentConfirmationMailTemplate = `<!DOCTYPE html>
             ✉ [Hospital Email Address]<br>
             🌐 [Hospital Website URL]
         </p>
-    </main>
+        </main>
 
     <!-- Footer -->
     <footer style="text-align: center; padding: 20px; background-color: #f8f9fa; color: #6c757d; font-size: 0.9em;">

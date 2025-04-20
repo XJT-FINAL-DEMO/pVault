@@ -1,5 +1,6 @@
 import { appointmentsModel } from '../model/appointmentsModel.js';
-import { appointmentConfirmationMailTemplate, preCheckInMailTemplate } from '../utils/mailing.js';
+import { appointmentConfirmationMailTemplate, mailTransporter, preCheckInMailTemplate } from '../utils/mailing.js';
+import jwt from 'jsonwebtoken';
 
 
 // book appointment with dr and 
@@ -27,22 +28,26 @@ export const bookAppointment = async (req, res) => {
         if (newDate(date) < new Date()) {
             return res.status(400).json({ error: "Pick a future date" })
         }
-
         //Create the appointment
         const newAppointment = new appointmentsModel({
             user: userId,
             doctor: doctorId,
             date: date,
-            status: "booked"
+            status: "pending",
         });
+        // generate confirmation token jwt
+        const confirmationToken = jwt.sign({
+            appointmentId: newAppointment._id, type: 'Confirmation'
+        }, process.env.JWT_SECRET, { expiresIn: '30mnutes' })
 
         //send appointment confirmation email to user
+        const confirmationLink = `${process.env.BASE_URL}/confirm/${confirmationToken}`;
         await mailTransporter.sendMail({
-                from:process.env.USER_EMAIL,
-                to: value.email,
-                subject: "You have sucessfully created an appointment with pVault",
-                html: appointmentConfirmationMailTemplate.replace('{{lastName}}', value.lastName)
-            })
+            from: process.env.USER_EMAIL,
+            to: value.email,
+            subject: "You have sucessfully created an appointment with pVault",
+            html: appointmentConfirmationMailTemplate.replace('{{lastName}}', value.lastName)`<a href="${confirmationLink}">Confirm</a>`
+        })
 
         //Send a sucess response
         res.json({
@@ -57,8 +62,86 @@ export const bookAppointment = async (req, res) => {
 };
 
 // rechedule appointments [dr & patients]
+export const reschedulAppointment = async (req, res) => {
+    try {
+        const { newDate } = req.body;
+        const appointment = await appointmentsModel.findById(req.params.id);
 
+        if (appointment.user.toString() !== req.auth.id) {
+            return res.status(403).json({ error: "Unauthorized" });
+        }
+        if (new Date(newDate) < new Date()) {
+            return res.status(400).json({ error: "Pick a Future Date" })
+        }
 
+        // check dr available
+        const existing = new appointmentsModel.findOne({
+            doctor: appointment.doctor,
+            date: newDate,
+            _id: { $ne: appointment }
+        });
+
+        if (existing) { return res.status(400).json({ message: "Doctor is busy at this time" }); }
+
+        // update appointment
+        appointment.rescheduleHistory.push({
+            oldDate: appointment.date,
+            newDate: newDate,
+            changedAt: newDate
+        });
+
+        appointment.date = newDate;
+        appointment.status = 'rescheduled';
+        await appointment.save();
+
+        // send mail to confirm reschedul
+        await mailTransporter.sendMail({
+            to: req.user.email,
+            subject: "Appointment Reschedule",
+            html: addEmailtemplate(newDate)//replace the new template leave the (newDate)
+        });
+        res.json({
+            message: 'Appointment rescheduled',
+            data: appointment
+        })
+
+    } catch (error) {
+        res.status(500).json({ error: 'Rescheduled Failed' })
+    }
+}
+
+// confirm appointment 
+export const confirmAppointmet = async (req, res) => {
+    try {
+        const { token } = req.params;
+        // verify jwt and validate 
+        const decode = jwt.verify(token, process.env.JWT_SECRET);
+        if (decode.type !== 'confirmation') {
+            return res.status(400).json({ error: 'Invalide token type' });
+        }
+        // find appointment and update status 
+        const appointment = await appointmentsModel.findOne({ _id: decode.appointmentId, status: 'Pending' });
+
+        if (!appointment) {
+            return res.status(400).json({
+                error: "Appointment Not Found or Already Confirmed"
+            });
+        }
+        appointment.status = 'confirmed';
+        appointment.confirmationToken = undefined;
+        await appointment.save();
+
+    } catch (error) {
+        if (error.name == "TokenExpiredError") {
+            return res.status(400).json({ error: "Confirmation link expired" });
+        }
+        if (error.name == "JsonWebTokenError") {
+            return res.status(400).json({ error: "Invalide Token" });
+        }
+        res.status(500).json({ error: "Confirmation Failed, Refresh!" })
+
+    }
+}
 
 // pre check in online 
 export const CheckIn = async (req, res) => {
@@ -120,10 +203,35 @@ export const getAppointments = async (req, res) => {
     }
 }
 
-// delete appointment [soft delete]
+// delete appointment [delete]
+export const cancelAppointment = async (req, res, next) => {
+    try {
+        // find appointment
+        const appointment = await appointmentsModel.findById(req.params.Id).populate('user doctor', 'id');
+        if (!appointment) {
+            return res.status(404).json({ error: "Appointment not Found" });
+        }
+        const isPatient = req.auth.id == appointment.user._id.toString();
+        const isDoctor = req.auth.id == appointment.user._id.toString();
+        if (!isPatient && !isDoctor) {
+            return res.status(403).json({ error: "Unauthorized, You can delte your Own appointments Only" });
+        }
+        appointment.isDeleted = true;
+        appointment.deletedAt = new Date();
+        await appointment.save();
+        res.status(200).json({
+            message: "Appointment cancelled Successfully",
+            data: appointment,
+            deletedAt: appointment.deletedAt
+        });;
 
-// view deleted Appointment
 
-// restore appointment
 
-// admin permanently delete appointment
+    } catch (error) {
+        if (error.name = 'CastError') {
+            return res.status(400).json({ error: 'Malformed Appointment id' });
+        }
+        console.error('Delete appointment error', error);
+        res.status(500).json({ error: "Failed to cancel appointment, please try again later" });
+    }
+}

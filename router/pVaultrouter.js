@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addFacility, getFacilities, getNearbyFacility, updateFacility } from "../controller/facilitiesController.js";
+import { addFacility, getAllFacilities, getfacilityByUser, getNearbyFacility, updateFacility } from "../controller/facilitiesController.js";
 import { addPrescription, getAllprescriptions, updatePrescription } from "../controller/prescriptController.js";
 import { bookAppointment, getAppointments,CheckIn, reschedulAppointment, confirmAppointmet, cancelAppointment } from "../controller/appointmentController.js";
 import { isAuthenticated, isAuthorized } from "../middleware/auth.js";
@@ -12,62 +12,64 @@ import { addMedicine, deleteMedicine, getAllMedicines, updateMedicine } from "..
 const pVaultRouter = Router();
 
 // FACILITY ROUTES
-pVaultRouter.post("/api/facility",isAuthenticated,isAuthorized(["doctor","pharmacist","admin"]), addFacility)
+pVaultRouter.post("/facility",isAuthenticated,isAuthorized(["doctor","pharmacist","admin"]), addFacility)
 
-pVaultRouter.get("/api/facilities", isAuthenticated,getFacilities)
+pVaultRouter.get("/allfacilities", isAuthenticated, getAllFacilities)
 
-pVaultRouter.patch("api/facility/:id", isAuthenticated, isAuthorized(['doctor','admin']),updateFacility)
+pVaultRouter.get("/facilities", isAuthenticated, getfacilityByUser )
 
-pVaultRouter.get("/api/facility", isAuthenticated, getNearbyFacility)
+pVaultRouter.patch("/facility/:id", isAuthenticated, isAuthorized(['doctor','admin']),updateFacility)
+
+pVaultRouter.get("/facility", isAuthenticated, getNearbyFacility)
 
 //---------------------------------------------------------------------------------
 
 // APPOINTMENTS ROUTES
-pVaultRouter.post("/api/bookAppointment/",isAuthenticated, bookAppointment)
+pVaultRouter.post("/bookAppointment/",isAuthenticated, bookAppointment)
 
-pVaultRouter.patch("api/appointment/:id", isAuthenticated, isAuthorized(["patient","doctor"]), reschedulAppointment)
+pVaultRouter.patch("/appointment/:id", isAuthenticated, isAuthorized(["patient","doctor", "admin"]), reschedulAppointment)
 
-pVaultRouter.patch("/api/confirmAppointment/:id",isAuthenticated,isAuthorized(["patient","doctor"]), confirmAppointmet)
+pVaultRouter.patch("/confirmAppointment/:id",isAuthenticated,isAuthorized(["patient","doctor", "admin"]), confirmAppointmet)
 
-pVaultRouter.post("/api/checkIn/",isAuthenticated, CheckIn)
+pVaultRouter.post("/checkIn/",isAuthenticated, CheckIn)
 
-pVaultRouter.get("/api/appointment/:id", isAuthenticated, getAppointments)
+pVaultRouter.get("/appointment/:id", isAuthenticated, getAppointments)
 
-pVaultRouter.delete("/api/cancelAppointment/:id", isAuthenticated, isAuthorized(["patient", "doctor"]), cancelAppointment)
+pVaultRouter.delete("/cancelAppointment/:id", isAuthenticated, isAuthorized(["patient", "doctor", "admin"]), cancelAppointment)
 
 
 //---------------------------------------------------------------------------------
 // MEDICINES
-pVaultRouter.post("/api/medicin",isAuthenticated,isAuthorized(['pharmacist']),addMedicine)
+pVaultRouter.post("/medicine",isAuthenticated,isAuthorized(["pharmacist", "admin"]),addMedicine)
 
-pVaultRouter.get("/api/medicine", isAuthenticated, getAllMedicines)
+pVaultRouter.get("/medicine", isAuthenticated, getAllMedicines)
 
-pVaultRouter.patch("/api/medicine/:id",isAuthenticated,isAuthorized(["pharmacist"]),updateMedicine)
+pVaultRouter.patch("/medicine/:id",isAuthenticated,isAuthorized(["pharmacist", "admin"]),updateMedicine)
 
-pVaultRouter.delete("/api/medicine/:id", isAuthenticated,isAuthorized(["pharmacist"], deleteMedicine))
+pVaultRouter.delete("/medicine/:id", isAuthenticated,isAuthorized(["pharmacist","admin"], deleteMedicine))
 
 //---------------------------------------------------------------------------------
 // PRESCRIPTIONS
-pVaultRouter.post("/",prescriptionUpload.array("prescriptions"), isAuthenticated,isAuthorized(['patient', 'doctor']), addPrescription)
+pVaultRouter.post("/prescriptions",prescriptionUpload.array("prescriptions"), isAuthenticated,isAuthorized(['patient', 'doctor', 'admin']), addPrescription)
 
-pVaultRouter.get("/api/prescriptions", isAuthenticated,getAllprescriptions)
+pVaultRouter.get("/prescriptions", isAuthenticated,getAllprescriptions)
 
-pVaultRouter.patch("/api/prescription/:id", isAuthenticated, updatePrescription)
+pVaultRouter.patch("/prescription/:id", isAuthenticated, updatePrescription)
 
 
 //---------------------------------------------------------------------------------
 //BLOGS ROUTES
-pVaultRouter.post("/api/blogs", isAuthenticated, isAuthorized(["doctor", "nurse", "pharmacist", "admin"]),blogsCoverPhotoUpload, createBlog)
+pVaultRouter.post("/blogs", blogsCoverPhotoUpload, isAuthenticated, isAuthorized(["doctor", "nurse", "pharmacist", "admin"]), createBlog)
 
-pVaultRouter.get("/api/blogs", getBlogs)
+pVaultRouter.get("/blogs", getBlogs)
 
-pVaultRouter.get("/api/blog/:id", getBlog)
+pVaultRouter.get("/blog/:id", getBlog)
 
-pVaultRouter.get("/api/blogs/author", isAuthenticated, isAuthorized(["doctor","pharmacist", "admin"]), getAuthorBlogs)
+pVaultRouter.get("/blogs/author", isAuthenticated, isAuthorized(["doctor","pharmacist", "admin"]), getAuthorBlogs)
 
-pVaultRouter.delete("/api/blog/:id", isAuthenticated, isAuthorized(["doctor","pharmacist", "admin"]), deleteBlog)
+pVaultRouter.delete("/blog/:id", isAuthenticated, isAuthorized(["doctor","pharmacist", "admin"]), deleteBlog)
 
-pVaultRouter.patch("/api/blog/:id", blogsCoverPhotoUpload, isAuthenticated, isAuthorized(["doctor", "pharmacist", "admin"]), updateBlog)
+pVaultRouter.patch("/blog/:id", blogsCoverPhotoUpload, isAuthenticated, isAuthorized(["doctor", "pharmacist", "admin"]), updateBlog)
 
 
 

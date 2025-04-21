@@ -18,12 +18,12 @@ app.use(cors());
 
 // routers to be used
 app.use(userRouter);
-app.use(pVaultRouter)
+app.use('/api', pVaultRouter)
 
 
 
 // listening server port
-const port = process.env.Port || 7000;
+const port = process.env.PORT || 7000;
 app.listen(port,() =>{
     console.log(`pVault is Active on ${port}`);
 })

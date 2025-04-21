@@ -3,7 +3,7 @@ import {model,Schema} from 'mongoose';
 
 const facilitySchema = new Schema({
     name:{type:String, required:true},//eg "korlebu"
-    type:{type:String, enum:["hospital","pharmacy", "lab center"], required:true},
+    type:{type:String, enum:["hospital","pharmacy"], required:true},
     location: {
         type:{type:String, default:"Point"}, //maps
         coordinates:{type:[Number], required:true,
@@ -18,10 +18,16 @@ const facilitySchema = new Schema({
         validator:(phone) => /^\d{10}$/.test(phone),
         message:"Invalid phone number!"
     },
-    openingHours:[{
+   
+    openingHours:[
+        {
         day:{type: String, required:true},//"Mon", "Tues"...
         hours:{type: String, required:true} //"6:00 Am - 2:00 PM"
-    }],
+    }
+],
+    
+    
+    
     is247: {
         type: Boolean,
         default: false},

@@ -4,7 +4,7 @@ import { Schema, model, Types } from "mongoose";
 const blogPostSchema = new Schema({
 title:{type:String, required:true, trim:true},
 content:{type:String, required:true},
-excerpt: {type: String, maxlenght:160},
+tags: {type: String, maxlenght:160},
 image:{type:String, required:true},
 status: {type:String, enum: ['draft', 'published'], default:'draft'},
 author: {type: Types.ObjectId,

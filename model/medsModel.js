@@ -1,4 +1,4 @@
-import mongoose,{ Schema, model } from "mongoose";
+import mongoose,{ Schema, model, Types } from "mongoose";
 
 const medsSchema = new Schema ({
     name: {type: String, required: true},
@@ -6,9 +6,9 @@ const medsSchema = new Schema ({
     quantity:{type:Number, required:true},
     manufacturer:{type:String, required:true},
     price:{type:Number, required:true},
-    expiryDate:{Date},
-    picture:[{String}],
-    pharmacist:{type: mongoose.Schema.Type.ObjectId, ref:'User'}
+    expiryDate:{type: Date, required:true},
+    // picture:{type:[String]},
+    pharmacist:{type: Types.ObjectId, ref:'User'}
 },{timestamps:true});
 
 

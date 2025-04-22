@@ -5,7 +5,7 @@ const statusEnum = ['draft', 'published']
 export const blogValidator = Joi.object({
     title: Joi.string().required().trim(),
     content: Joi.string().required(),
-    excerpt: Joi.string(),
+    tags: Joi.string(),
     image: Joi.string().uri().required(),
     status: Joi.string().valid(...statusEnum).default('draft')
 }).options({abortEarly: false});

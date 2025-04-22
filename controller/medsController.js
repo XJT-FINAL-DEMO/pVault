@@ -1,4 +1,3 @@
-import { object } from "joi";
 import { medsModel } from "../model/medsModel.js";
 import { medsValidator } from '../validators/medsValidator.js'
 
@@ -10,14 +9,14 @@ export const addMedicine = async (req, res) => {
         );
         if (error) {
 
-            return res.status(422).json({ message: 'validation error ', details: errorMessage })
+            return res.status(422).json({ message: 'validation error ', details: error.details.map(detail => detail.message) });
         }
         const existingMedicine = await medsModel.findOne({name:value.name});
         if (existingMedicine) {
             return res.status(409).json({error:`Medicine '${value.name}' already exists`});
         }
         const newMedicine = await medsModel.create({
-            ...value, userId: req.auth.id
+            ...value, pharmacist: req.auth.id
         });
         return res.status(201).json({ 
             message: "Product Added!",
@@ -42,17 +41,19 @@ export const getAllMedicines = async (req, res) => {
 
         // build the query
         const query = {isDeleted: false};
-        const allowedFilters = ['name', 'price'];
-        object.keys(filter).forEach(key =>{
+        const allowedFilters = ['name', 'price', 'manufacturer', 'quantity'];
+        
+        Object.keys(filter).forEach(key =>{
             if (allowedFilters.includes(key)) {query[key] = filter[key]}
         })
-        const results = await medsModel.find({ ...JSON.parase(filter), isDeleted: false }).sort(JSON.parse(sort));
+       
+        const results = await medsModel.find({ ...JSON.parse(JSON.stringify(filter)), isDeleted: false }).sort(JSON.parse(sort));
         if (results.length === 0) {
             return res.status(404).json({ message: "No Medicine Found" })
         }
         res.status(201).json({ message: "See your Search", data: results })
     } catch (error) {
-        res.sstatus(409).json({ message: "Request not succesful " + error.mesaage })
+        res.status(409).json({ message: "Request not succesfull " + error.mesaage })
     }
 }
 

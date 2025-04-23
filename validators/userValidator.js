@@ -18,7 +18,7 @@ export const registerUserValidator = Joi.object({
 
 // user login validators
 export const loginUserValidator = Joi.object({
-    email:Joi.string().required(),
+    email:Joi.string().email().required(),
     password:Joi.string().required(),
 });
 

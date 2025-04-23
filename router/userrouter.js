@@ -1,10 +1,12 @@
 import { Router } from "express";
-import { getAllUsers, loginUser, registerUser, updateUser } from "../controller/usercontroller.js";
+import { getAllUsers, loginUser, registerDoctor, registerUser, updateUser } from "../controller/usercontroller.js";
 
 
 const userRouter = Router();
 
 userRouter.post("/users/signup", registerUser);
+
+userRouter.post("/users/signupDr", registerDoctor);
 
 userRouter.post("/users/login", loginUser);
 

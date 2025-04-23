@@ -1,31 +1,27 @@
 import { facilityModel } from "../model/facilityModel.js";
+import { facilityUpdatValidator } from "../validators/facilityValidator.js";
 
 // ADD FACILITIES
 export const addFacility = async (req, res) => {
-  console.log(req.body);
   try {
     // validate facility type
     const validTypes = ["hospital", "pharmacy"];
     if (!validTypes.includes(req.body.type)) {
       return res
-        .status(400)
-        .json({ error: "Invalid facility type! Use 'hospital', 'pharmacy'" });
+        .status(400).json({ error: "Invalid facility type! Use 'hospital', 'pharmacy'" });
     }
+    console.log("req.auth in addFacility:", req.auth);
     const newFacility = new facilityModel(
       {
         ...req.body,
-        pictures: req.files?.map((file) => {
-          return file.filename;
-        }),
-      },
-      { abortEarly: false }
-    );
-
+        pictures: req.files?.map((file) => file.filename) || [],
+        userId: req.auth.id,
+      });
     await newFacility.save();
 
     res
       .status(201)
-      .json({ message: `New${newFacility.type} Added Successfully🥳` });
+      .json({ message: `New ${newFacility.type} Added Successfully🥳`, data: newFacility });
   } catch (error) {
     if (error.name === "ValidationError") {
       return res.status(400).json({
@@ -73,7 +69,7 @@ export const getfacilityByUser = async (req, res) => {
         .status(404)
         .json({ message: "No Facilitty Attached to Your Id" });
     }
-    res.json({ message: "Here are your Posted Facilities" });
+    res.json({ message: "Here are your Posted Facilities", facilities: result });
   } catch (error) {
     return res
       .status(500)
@@ -85,57 +81,30 @@ export const getfacilityByUser = async (req, res) => {
 
 export const updateFacility = async (req, res) => {
   try {
-    const { error, value } = facilityModel.validate(req.body);
-    if (error){
-        return res.status(400).json({
-            error: "Validation error",
-            details: error.details.map(d => d.message)
-        })
+    const { error, value } = facilityUpdatValidator.validate(req.body,{abortEarly: false});
+    if (error) {
+      return res.status(400).json({message: "validation Unsuccessful" + error.message })
     }
-    
-    const validTypes = ["hospital", "pharmacy"];
-    if (value.type && !validTypes.includes(value.type || error)) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "Invalid facility type! Use 'hospital'or 'pharmacy'" +
-            error.message,
-        });
-    }
-    // find facility by id
+
+    // find facility by id 
     const confirmFacility = await facilityModel.findById(req.params.id);
     if (!confirmFacility) {
-      return res
-        .status(404)
-        .json({ message: "No Facility Found, confirm it Exist!" });
+      return res.status(404).json({ message: "No Facility Found, confirm it Exist!" });
     }
     // confirm user is authorized to update
+    console.log("req.auth in updateFacility:", req.auth);
     if (confirmFacility.userId.toString() !== req.auth.id) {
-      return res
-        .status(403)
-        .json({
-          message:
-            "You are Not Authorized to Update Facility, Contact your Admin",
-        });
+      return res.status(403).json({
+        message: "You are Not Authorized to Update Facility, Contact your Admin",
+      });
     }
-    const result = await facilityModel.findByIdAndUpdate(req.params.id, value, {
-      new: true,
-    });
+    const result = await facilityModel.findByIdAndUpdate(req.params.id, value, { new: true });
     if (!result) {
-      return res
-        .status(404)
-        .json({ message: "Faclity Not Found, Create It" + error.message });
+      return res.status(404).json({ message: "Faclity Not Found, Create It" + error.message });
     }
     res.status(200).json({ message: "Update successful", data: result });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        messge:
-          "Request not sucessful, kindly refresh or contact Admin" +
-          error.message,
-      });
+    return res.status(500).json({ messge: "Request not sucessful, kindly refresh or contact Admin " + error.message, });
   }
 };
 

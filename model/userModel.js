@@ -7,8 +7,8 @@ const userSchema = new Schema({
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    role: {
-        type: String, enum: ["patient", "nurse", "pharmacist", "doctor","admin"],
+    dateOfBirth:{type: Date, required: true},
+    role: {type: String, enum: ["patient", "admin"],
         default: 'patient' //set to default value as the patient
     },
     // medicalRecords: [{ type: mongoose.Schema.Types.ObjectId, ref: "medicalRecords" }],

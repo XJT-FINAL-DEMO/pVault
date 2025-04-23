@@ -1,5 +1,5 @@
 import { appointmentsModel } from '../model/appointmentsModel.js';
-import { appointmentConfirmationMailTemplate, mailTransporter, preCheckInMailTemplate } from '../utils/mailing.js';
+import { appointmentConfirmationMailTemplate, mailTransporter} from '../utils/mailing.js';
 import jwt from 'jsonwebtoken';
 
 
@@ -56,7 +56,7 @@ export const bookAppointment = async (req, res) => {
         });
 
     } catch (error) {
-        res.status(500).json({ error: "Robot crashed! Try again later" });
+        res.status(500).json({ error: "Server crashed! Try again later" });
     }
 
 };

@@ -1,9 +1,14 @@
+import { required, types } from 'joi';
 import mongoose, {model,Schema} from 'mongoose';
 
 const doctorsSchema = new Schema({
-    name:{type:String, requird:true},
-    speciality:{type:String, required:true},
-    hospital:{type:mongoose.Schema.Types.ObjectId, ref:"Facility"},
+    firstName:{type:String, requird:true},
+    lastName:{type:String, requird:true},
+    email:{type: email, required: true},
+    specialization:{type:String, required:true},
+    lincense:{typ: String, requird: true},
+    facility: {type:mongoose.Schema.Types.ObjectId, ref:'Facility'},
+    role:{type:String, enm:['pharmacist','doctor']},
     availability:[{
         day: [String], //days available
         slots:[String] //times available

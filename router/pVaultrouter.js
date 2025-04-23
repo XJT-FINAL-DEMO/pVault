@@ -20,12 +20,12 @@ pVaultRouter.get("/facilities", isAuthenticated, getfacilityByUser )
 
 pVaultRouter.patch("/facility/:id", isAuthenticated, isAuthorized(['doctor','admin']),updateFacility)
 
-pVaultRouter.get("/facility", isAuthenticated, getNearbyFacility)
+pVaultRouter.get("/nearby-facility-search", isAuthenticated, getNearbyFacility)
 
 //---------------------------------------------------------------------------------
 
 // APPOINTMENTS ROUTES
-pVaultRouter.post("/bookAppointment/",isAuthenticated, bookAppointment)
+pVaultRouter.post("/appointments",isAuthenticated, bookAppointment)
 
 pVaultRouter.patch("/appointment/:id", isAuthenticated, isAuthorized(["patient","doctor", "admin"]), reschedulAppointment)
 

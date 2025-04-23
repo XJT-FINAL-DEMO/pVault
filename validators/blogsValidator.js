@@ -14,7 +14,7 @@ export const blogValidator = Joi.object({
 export const updateBlogValidator = Joi.object({
     title: Joi.string().optional().trim(),
     content: Joi.string().optional(),
-    excerpt: Joi.string(),
+    tags: Joi.string(),
     image: Joi.string().uri().optional(),
     status: Joi.string().valid(...statusEnum).default('draft')
 }).options({abortEarly: false});

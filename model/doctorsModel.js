@@ -1,14 +1,14 @@
-import { required, types } from 'joi';
 import mongoose, {model,Schema} from 'mongoose';
 
 const doctorsSchema = new Schema({
-    firstName:{type:String, requird:true},
-    lastName:{type:String, requird:true},
-    email:{type: email, required: true},
+    firstName:{type:String, required:true},
+    lastName:{type:String, required:true},
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
     specialization:{type:String, required:true},
-    lincense:{typ: String, requird: true},
-    facility: {type:mongoose.Schema.Types.ObjectId, ref:'Facility'},
-    role:{type:String, enm:['pharmacist','doctor']},
+    license:{type: String, required: true},
+    facility: [{type:mongoose.Schema.Types.ObjectId, ref:'Facility', required: true}],
+    role:{type:String, enum:['pharmacist','doctor'], required: true},
     availability:[{
         day: [String], //days available
         slots:[String] //times available
@@ -18,7 +18,7 @@ const doctorsSchema = new Schema({
 });
 
 // normalize schema
-userSchema.set("toJSON", {
+doctorsSchema.set("toJSON", {
     transform: (document, returnObject) => {
         returnObject.id = returnObject._id.toString()
         delete returnObject._id;

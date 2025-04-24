@@ -16,7 +16,7 @@ pVaultRouter.post("/facility",isAuthenticated,isAuthorized(["doctor","pharmacist
 
 pVaultRouter.get("/allfacilities", isAuthenticated, getAllFacilities)
 
-pVaultRouter.get("/facilities", isAuthenticated, getfacilityByUser )
+pVaultRouter.get("/users/:userId/facilities/", isAuthenticated, getfacilityByUser )
 
 pVaultRouter.patch("/facility/:id", isAuthenticated, isAuthorized(['doctor','admin']),updateFacility)
 

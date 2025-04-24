@@ -54,6 +54,7 @@ export const bookAppointment = async (req, res) => {
             message: "Appointment booked!",
             appointment: newAppointment
         });
+        console.log(newAppointment)
 
     } catch (error) {
         res.status(500).json({ error: "Server crashed! Try again later" });

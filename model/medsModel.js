@@ -1,15 +1,18 @@
-import mongoose,{ Schema, model, Types } from "mongoose";
+import mongoose, { Schema, model, Types } from "mongoose";
 
-const medsSchema = new Schema ({
-    name: {type: String, required: true},
-    description: {type: String, required:true },
-    quantity:{type:Number, required:true},
-    manufacturer:{type:String, required:true},
-    price:{type:Number, required:true},
-    expiryDate:{type: Date, required:true},
+const medsSchema = new Schema({
+    name: { type: String, required: true },
+    description: { type: String, required: true },
+    quantity: { type: Number, required: true },
+    manufacturer: { type: String, required: true },
+    price: { type: Number, required: true },
+    expiryDate: { type: Date, required: true },
     // picture:{type:[String]},
-    pharmacist:{type: Types.ObjectId, ref:'User'}
-},{timestamps:true});
+    pharmacist: { type: Types.ObjectId, ref: 'User' },
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
+    userId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' }
+}, { timestamps: true });
 
 
 
@@ -25,4 +28,4 @@ medsSchema.set("toJSON", {
     }
 });
 
-export const medsModel = model ('Medicine', medsSchema)
+export const medsModel = model('Medicine', medsSchema)

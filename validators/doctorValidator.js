@@ -5,6 +5,7 @@ const doctorsValidator = Joi.object({
     lastName: Joi.string().required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(8).required(),
+    confirmPassword: Joi.string().valid(Joi.ref('password')),
     specialization: Joi.string().required(),
     license: Joi.string().required(),
     facilities: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/)).min(1).required(), // Added validation for facilities array
@@ -15,6 +16,6 @@ const doctorsValidator = Joi.object({
             slots: Joi.array().items(Joi.string())
         })
     )
-});
+}).with("password", "confirmPassword");
 
 export default doctorsValidator;

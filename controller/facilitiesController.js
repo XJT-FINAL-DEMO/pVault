@@ -10,7 +10,6 @@ export const addFacility = async (req, res) => {
       return res
         .status(400).json({ error: "Invalid facility type! Use 'hospital', 'pharmacy'" });
     }
-    console.log("req.auth in addFacility:", req.auth);
     const newFacility = new facilityModel(
       {
         ...req.body,
@@ -62,14 +61,15 @@ export const getfacilityByUser = async (req, res) => {
         ...JSON.parse(filter),
         userId: req.params.userId,
         isDeleted: false,
-      })
-      .sort(JSON.parse(sort));
-    if (result.lenght === 0) {
+      }).sort(JSON.parse(sort));
+      console.log(req.params.userId)
+    if (result.length === 0) {
       return res
         .status(404)
         .json({ message: "No Facilitty Attached to Your Id" });
     }
-    res.json({ message: "Here are your Posted Facilities", facilities: result });
+    res.json({ message: "Here are your Posted Facilities", data: result });
+    console.log(result)
   } catch (error) {
     return res
       .status(500)

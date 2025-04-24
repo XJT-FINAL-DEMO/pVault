@@ -7,6 +7,7 @@ export const registerUserValidator = Joi.object({
     firstName: Joi.string().regex(/^[A-Za-z]+$/).required(),
     lastName: Joi.string().regex(/^[A-Za-z]+$/).required(),
     email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }).required(),
+    dateOfBirth:Joi.date(),
     password: Joi.string().required(),
     confirmPassword: Joi.string().valid(Joi.ref('password')),
     role: Joi.string().valid('patient', 'labTech', 'nurse', 'pharmacist', 'doctor', 'admin').optional(),//default role is patient

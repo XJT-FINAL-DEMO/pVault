@@ -46,7 +46,7 @@ pVaultRouter.get("/medicine", isAuthenticated, getAllMedicines)
 
 pVaultRouter.patch("/medicine/:id",isAuthenticated,isAuthorized(["pharmacist", "admin"]),updateMedicine)
 
-pVaultRouter.delete("/medicine/:id", isAuthenticated,isAuthorized(["pharmacist","admin"], deleteMedicine))
+pVaultRouter.delete("/medicine/:id", isAuthenticated,isAuthorized(["pharmacist","admin"]), deleteMedicine)
 
 //---------------------------------------------------------------------------------
 // PRESCRIPTIONS

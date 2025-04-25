@@ -6,10 +6,8 @@ const appointmentSchema = new Schema({
     doctor: { type: mongoose.Schema.Types.ObjectId, ref: "Doctor", required: true },
     date: { type: Date, required: true },
     status: { type: String, enum: ["pending", "confirmed", "cancelled", "rescheduled"], default: "pending" },
-    confirmationToken: {
-        type: String,
-        rescheduleHistory: [{ oldDate: Date, newDate: Date, changeAt: Date }]
-    },
+    confirmationToken: {type: String},
+    rescheduleHistory: [{ oldDate: Date, newDate: Date, changeAt: Date},{default:[]}],
     notes: { type: String },//bring previouse test reports
     isDeleted: { type: Boolean, default: false },
     deletedAt: { type: Date },

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { addFacility, getAllFacilities, getfacilityByUser, getNearbyFacility, updateFacility } from "../controller/facilitiesController.js";
 import { addPrescription, getAllprescriptions, updatePrescription } from "../controller/prescriptController.js";
-import { bookAppointment, getAppointments,CheckIn, reschedulAppointment, confirmAppointmet, cancelAppointment } from "../controller/appointmentController.js";
+import { bookAppointment, getAppointments,CheckIn, reschedulAppointment, cancelAppointment } from "../controller/appointmentController.js";
 import { isAuthenticated, isAuthorized } from "../middleware/auth.js";
 import { createBlog, deleteBlog, getAuthorBlogs, getBlog, getBlogs, updateBlog } from "../controller/blogsController.js";
 import { blogsCoverPhotoUpload,prescriptionUpload } from "../middleware/upload.js";
@@ -29,11 +29,10 @@ pVaultRouter.post("/appointments",isAuthenticated, bookAppointment)
 
 pVaultRouter.patch("/appointment/:id", isAuthenticated, isAuthorized(["patient","doctor", "admin"]), reschedulAppointment)
 
-pVaultRouter.patch("/confirmAppointment/:id",isAuthenticated,isAuthorized(["patient","doctor", "admin"]), confirmAppointmet)
+// pVaultRouter.patch("/confirmAppointment/:id",isAuthenticated,isAuthorized(["doctor", "admin"]), confirmAppointment)
+pVaultRouter.get("/get-appointment", isAuthenticated, getAppointments)
 
 pVaultRouter.post("/checkIn/",isAuthenticated, CheckIn)
-
-pVaultRouter.get("/appointment/:id", isAuthenticated, getAppointments)
 
 pVaultRouter.delete("/cancelAppointment/:id", isAuthenticated, isAuthorized(["patient", "doctor", "admin"]), cancelAppointment)
 

@@ -1,5 +1,7 @@
 import { appointmentsModel } from '../model/appointmentsModel.js';
-import { appointmentConfirmationMailTemplate, mailTransporter} from '../utils/mailing.js';
+import { doctorsModel } from '../model/doctorsModel.js';
+import { userModel } from '../model/userModel.js';
+import { appointmentConfirmationMailTemplate, mailTransporter } from '../utils/mailing.js';
 import jwt from 'jsonwebtoken';
 
 
@@ -10,8 +12,8 @@ export const bookAppointment = async (req, res) => {
         const { userId, doctorId, date }
             = req.body;
         //Check if user and doctor exist
-        const user = await user.findById(userId);
-        const doctor = await doctor.findById(doctorId);
+        const user = await userModel.findById(userId);
+        const doctor = await doctorsModel.findById(doctorId);
         if (!user || !doctor) {
             return res.status(404).json({ error: "User or doctor not found!" });
         }
@@ -25,7 +27,7 @@ export const bookAppointment = async (req, res) => {
         }
 
         //Check if the date is in the future(nott in the past)
-        if (newDate(date) < new Date()) {
+        if (new Date(date) < new Date()) {
             return res.status(400).json({ error: "Pick a future date" })
         }
         //Create the appointment
@@ -35,18 +37,21 @@ export const bookAppointment = async (req, res) => {
             date: date,
             status: "pending",
         });
+        await newAppointment.save();
         // generate confirmation token jwt
         const confirmationToken = jwt.sign({
             appointmentId: newAppointment._id, type: 'Confirmation'
-        }, process.env.JWT_SECRET, { expiresIn: '30mnutes' })
+        }, process.env.JWT_SECRET, { expiresIn: '30minutes' })
 
+        console.log("Generated Confirmation Token:", confirmationToken);
         //send appointment confirmation email to user
         const confirmationLink = `${process.env.BASE_URL}/confirm/${confirmationToken}`;
+        const htmlContent = appointmentConfirmationMailTemplate.replace('{{lastName}}', user.lastName).replace('{{confirmationLink}}', `<a href="${confirmationLink}">Confirm</a>`)
         await mailTransporter.sendMail({
             from: process.env.USER_EMAIL,
-            to: value.email,
+            to: user.email,
             subject: "You have sucessfully created an appointment with pVault",
-            html: appointmentConfirmationMailTemplate.replace('{{lastName}}', value.lastName)`<a href="${confirmationLink}">Confirm</a>`
+            html: htmlContent
         })
 
         //Send a sucess response
@@ -54,13 +59,42 @@ export const bookAppointment = async (req, res) => {
             message: "Appointment booked!",
             appointment: newAppointment
         });
-        console.log(newAppointment)
-
     } catch (error) {
         res.status(500).json({ error: "Server crashed! Try again later" });
     }
 
 };
+
+// confirm appointment 
+// export const confirmAppointment = async (req, res) => {
+//     try {
+//         const { appointmentId } = req.params;
+//         // verify jwt and validate 
+//         const doctorId = req.auth.id
+
+//         // find appointment and update status 
+//         const appointment = await appointmentsModel.findOne({
+//             _id: appointmentId,
+//             doctor: doctorId,
+//             status: 'Pending'
+//         });
+
+//         if (!appointment) {
+//             return res.status(400).json({
+//                 error: "Appointment Not Found or Already Confirmed"
+//             });
+//         }
+//         appointment.status = 'Doctor Confirmed';
+//         await appointment.save();
+//         return res.status(200).json({ message: 'Appointment confirmed successfully' });
+
+//     } catch (error) {
+//         console.error('error confirming appointment', error);
+//         res.status(500).json({ error: "Confirmation Failed, Refresh!" })
+
+//     }
+// }
+
 
 // rechedule appointments [dr & patients]
 export const reschedulAppointment = async (req, res) => {
@@ -68,39 +102,43 @@ export const reschedulAppointment = async (req, res) => {
         const { newDate } = req.body;
         const appointment = await appointmentsModel.findById(req.params.id);
 
+        if (!appointment) {
+            return res.status(403).json({ error: "Appointment Not Found" });
+        }
         if (appointment.user.toString() !== req.auth.id) {
             return res.status(403).json({ error: "Unauthorized" });
         }
-        if (new Date(newDate) < new Date()) {
+
+        const rescheduleDate = new Date(newDate);
+        const now = new Date();
+        if (rescheduleDate < now) {
             return res.status(400).json({ error: "Pick a Future Date" })
         }
 
         // check dr available
-        const existing = new appointmentsModel.findOne({
+        const existingAppointment = await appointmentsModel.findOne({
             doctor: appointment.doctor,
             date: newDate,
-            _id: { $ne: appointment }
+            _id: { $ne: appointment._id }
         });
 
-        if (existing) { return res.status(400).json({ message: "Doctor is busy at this time" }); }
+        if (existingAppointment) { return res.status(400).json({ message: "Doctor is busy at this time" }); }
 
         // update appointment
         appointment.rescheduleHistory.push({
             oldDate: appointment.date,
             newDate: newDate,
-            changedAt: newDate
+            changedAt: new Date()
         });
-
-        appointment.date = newDate;
-        appointment.status = 'rescheduled';
         await appointment.save();
 
+
         // send mail to confirm reschedul
-        await mailTransporter.sendMail({
-            to: req.user.email,
-            subject: "Appointment Reschedule",
-            html: addEmailtemplate(newDate)//replace the new template leave the (newDate)
-        });
+        // await mailTransporter.sendMail({
+        //     to: req.user.email,
+        //     subject: "Appointment Reschedule",
+        //     html: addEmailtemplate(newDate)//replace the new template leave the (newDate)
+        // });
         res.json({
             message: 'Appointment rescheduled',
             data: appointment
@@ -108,39 +146,6 @@ export const reschedulAppointment = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ error: 'Rescheduled Failed' })
-    }
-}
-
-// confirm appointment 
-export const confirmAppointmet = async (req, res) => {
-    try {
-        const { token } = req.params;
-        // verify jwt and validate 
-        const decode = jwt.verify(token, process.env.JWT_SECRET);
-        if (decode.type !== 'confirmation') {
-            return res.status(400).json({ error: 'Invalide token type' });
-        }
-        // find appointment and update status 
-        const appointment = await appointmentsModel.findOne({ _id: decode.appointmentId, status: 'Pending' });
-
-        if (!appointment) {
-            return res.status(400).json({
-                error: "Appointment Not Found or Already Confirmed"
-            });
-        }
-        appointment.status = 'confirmed';
-        appointment.confirmationToken = undefined;
-        await appointment.save();
-
-    } catch (error) {
-        if (error.name == "TokenExpiredError") {
-            return res.status(400).json({ error: "Confirmation link expired" });
-        }
-        if (error.name == "JsonWebTokenError") {
-            return res.status(400).json({ error: "Invalide Token" });
-        }
-        res.status(500).json({ error: "Confirmation Failed, Refresh!" })
-
     }
 }
 
@@ -183,23 +188,35 @@ export const CheckIn = async (req, res) => {
 // get/view user appointment details 
 export const getAppointments = async (req, res) => {
     try {
-        const { userId, role } = req.user;
+        const { userId, role } = req.auth;
         let appointments;
         if (role == "patient") {
-            appointments = await appointments.find({ patient: userId }).populate('doctor', 'name speciality');
-        } else if (role == "doctor") {
-            appointments = await appointments.find({ doctor: userId }).populate('patient', 'name email');
-        } else if (role == "pharmacist") {
-            appointments == await appointments.find({ pharmasist: userId }).populate('pharmacist', 'name email');
-        } else {
-            return res.status(403).json({ error: "Your neither a Patient, Nurse nor Dr" })
+            appointments = await appointmentsModel.find({ user: userId }).populate('doctor', 'name speciality');
+        }
+
+        else if (role == "doctor") {
+            console.log("req.auth:", req.auth.id);
+            appointments = await appointmentsModel.find({ doctor: userId }).populate('patient', 'name email');
+            console.log("Retrieved appointments:", appointments);
+        }
+
+        else if (role == "pharmacist") {
+            appointments = await appointmentsModel.find({ pharmacist: userId }).populate('pharmacist', 'name email');
+        }
+
+        else {
+            return res.status(403).json({ error: "Your neither a Patient, nor Dr" })
         }
         res.json({
             message: "See Your Appointments!",
             appointments
+
         })
+        console.log(appointments)
     } catch (error) {
-        res.status(500).jason({ error: "It seems the booking is stuck" })
+        console.error("Error fetching appointments:", error);
+        res.status(500).json({ error: "It seems the booking is stuck" })
+
 
     }
 }

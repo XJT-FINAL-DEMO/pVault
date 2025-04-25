@@ -34,7 +34,7 @@ export const registerUserMailTemplate = `<!DOCTYPE html>
     </div>
     
     <div class="content">
-        <h2>Welcome to [Your Medical Platform]!</h2>
+        <h2>Welcome to pVault!</h2>
         <p>Dear {{lastName}},</p>
         
         <p>Thank you for registering with [Your Medical Platform] - your new hub for seamless healthcare management. We're honored to be part of your wellness journey.</p>
@@ -91,7 +91,7 @@ export const appointmentConfirmationMailTemplate = `<!DOCTYPE html>
 
     <!-- Main Content -->
     <main style="padding: 20px;">
-        <p>Dear [Patient Name],</p>
+        <p>Dear {{lastName}},</p>
         
         <p>Your appointment has been successfully scheduled through pVault.</p>
         

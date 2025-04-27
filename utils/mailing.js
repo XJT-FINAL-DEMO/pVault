@@ -30,20 +30,20 @@ export const registerUserMailTemplate = `<!DOCTYPE html>
 </head>
 <body>
     <div class="header">
-        <img src="https://yourmedicalwebsite.com/logo.png" alt="[Your Medical Platform] Logo">
+        <img src="https://yourmedicalwebsite.com/logo.png" alt="pVault Logo">
     </div>
     
     <div class="content">
         <h2>Welcome to pVault!</h2>
         <p>Dear {{lastName}},</p>
         
-        <p>Thank you for registering with [Your Medical Platform] - your new hub for seamless healthcare management. We're honored to be part of your wellness journey.</p>
+        <p>Thank you for registering with pVault - your new hub for seamless healthcare management. We're honored to be part of your wellness journey.</p>
         
         <h3>Get Started in 3 Easy Steps:</h3>
         <ol>
-            <li><strong>Find nearby labs/pharmacies:</strong> Our verified directory helps you locate trusted providers</li>
+            <li><strong>Find nearby pharmacies:</strong> Our verified directory helps you locate trusted providers</li>
             <li><strong>Streamline check-ins:</strong> Complete paperwork digitally before appointments</li>
-            <li><strong>Access your records:</strong> Securely view visit summaries and prescriptions</li>
+            <li><strong>Access your medicine records:</strong> Securely view prescriptions</li>
         </ol>
         
         <div style="text-align: center; margin: 30px 0;">
@@ -55,20 +55,20 @@ export const registerUserMailTemplate = `<!DOCTYPE html>
         <h3>Your Security Matters</h3>
         <p>We use bank-level encryption and comply with HIPAA regulations to protect your health data. Learn more in our <a href="https://yourmedicalwebsite.com/privacy" style="color: #0066cc;">Privacy Policy</a>.</p>
         
-        <p>Need help? Contact our support team at <a href="mailto:support@yourmedicalwebsite.com" style="color: #0066cc;">support@yourmedicalwebsite.com</a>.</p>
+        <p>Need help? Contact our support team at <a href="mailto:connect.pvault@gmail.com" style="color: #0066cc;">support@yourmedicalwebsite.com</a>.</p>
         
         <p>To your health,<br>
-        The [Your Medical Platform] Team</p>
+        The pvault Team</p>
     </div>
     
     <div class="footer">
-        <p>© 2023 [Your Medical Platform]. All rights reserved.</p>
+        <p>© 2023 pVault. All rights reserved.</p>
         <p>
-            [Your Medical Platform Address] | 
+            123 Health Street | 
             <a href="https://yourmedicalwebsite.com" style="color: #777;">Website</a> | 
             <a href="https://yourmedicalwebsite.com/unsubscribe" style="color: #777;">Unsubscribe</a>
         </p>
-        <p><em>This email was sent to [Patient's Email] as part of your account registration.</em></p>
+        <p><em>This email was sent to {{lastName}} as part of your account registration.</em></p>
     </div>
 </body>
 </html>`

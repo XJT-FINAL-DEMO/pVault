@@ -1,9 +1,9 @@
 import mongoose, { Schema, model } from 'mongoose';
 
 const prescriptionSchema = new Schema({
-    patient: { type: mongoose.Schema.Types.ObjectId, ref: 'User', requuired: true },
-    pharmacist: { type: mongoose.Schema.Types.ObjectId, ref: 'User', requuired: true },
-    pictures: [{ type: String, requuired: true }],
+    patient: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    pharmacist: { type: mongoose.Schema.Types.ObjectId, ref: 'Doctor', required: true },
+    pictures: [{ type: String, required: true }],
     status: {
         type: String,
         enum: ['pending', 'approved', 'rejected', 'deilivering', 'delivered'], 
@@ -12,7 +12,7 @@ const prescriptionSchema = new Schema({
     medicines: [{
         medicine: { type: mongoose.Schema.Types.ObjectId, ref: "Medication" }, quantity: Number
     }],
-    deliveryAddress: { type: String, requuired: true },
+    deliveryAddress: { type: String, required: true },
     deliveryStatus: {
         enum: ['pending', 'delivering', 'delivered']
     }

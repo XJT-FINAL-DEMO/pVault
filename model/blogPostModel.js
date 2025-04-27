@@ -8,7 +8,7 @@ tags: {type: String, maxlenght:160},
 image:{type:String, required:true},
 status: {type:String, enum: ['draft', 'published'], default:'draft'},
 author: {type: Types.ObjectId,
-    ref:'User',
+    ref:'Doctor',
     required:true
 },
 publisheAt:{

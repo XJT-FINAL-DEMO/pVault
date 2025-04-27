@@ -2,6 +2,8 @@ import { cloudinary } from "../middleware/upload.js";
 import { prescriptModel } from "../model/prescriptModel.js";
 
 // Upload/post prescription .post/api/prescriptions 
+
+// XVIEN'S ADD PRESCRIPTION CONTROLLER
 export const addPrescription = async (req, res) => {
     try {
 
@@ -14,12 +16,12 @@ export const addPrescription = async (req, res) => {
             });
         });
         const cloudinaryResults = await Promise.all(UploadPromise);
-        const fileUrls = cloudinaryResults.map(result.secure_url)
+        const fileUrls = cloudinaryResults.map(result => result.secure_url)
         const { error, value } = prescriptModel.validate({
             ...req.body, pictures: fileUrls
         }, { abortEarly: false })
         if (error) {
-            return res.status(422).json({ message: "validation Error", status: error });
+            return res.status(422).json({ message: "validation Error", status: error.details });
         }
         const result = await prescriptModel.create({
             ...value,
@@ -30,10 +32,63 @@ export const addPrescription = async (req, res) => {
         if (error.message.includes('JPG/PDF')) {
             return res.status(4409).json({ message: error.message })
         }
-        return res.status(500).json({ messasge: "Hmm, Server Error, Refresh" })
+        return res.status(500).json({ message: "Hmm, Server Error, Refresh" })
 
     }
 }
+
+
+//NEW PRESCRIPTION CONTROLLER
+    // export const addPrescription = async (req, res) => {
+    //     try {
+    //         // Files are already uploaded to Cloudinary by Multer middleware
+    //         if (!req.files || req.files.length === 0) {
+    //             return res.status(400).json({ message: "No files uploaded" });
+    //         }
+    
+    //         // Cloudinary info is already in req.files
+    //         const fileUrls = req.files.map(file => file.path); // path contains Cloudinary URL
+    
+    //         // Validate request body
+    //         const { error, value } = prescriptModel.validate({
+    //             ...req.body,
+    //             pictures: fileUrls
+    //         }, { abortEarly: false });
+    
+    //         if (error) {
+    //             return res.status(422).json({ 
+    //                 message: "Validation error",
+    //                 errors: error.details 
+    //             });
+    //         }
+    
+    //         // Create prescription record
+    //         const newPrescription = await prescriptModel.create({
+    //             ...value,
+    //             userId: req.auth.id
+    //         });
+    
+    //         return res.status(201).json({
+    //             message: "Prescription uploaded successfully",
+    //             data: newPrescription
+    //         });
+    
+    //     } catch (error) {
+    //         console.error("Prescription upload error:", error);
+            
+    //         if (error.message.includes('JPG/PDF')) {
+    //             return res.status(400).json({ 
+    //                 message: "Invalid file type. Only JPG/PDF allowed" 
+    //             });
+    //         }
+            
+    //         return res.status(500).json({ 
+    //             message: "Internal server error",
+    //             error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    //         });
+    //     }
+    // }
+
 
 // list/get all prescription by filter of the status/pharmacist
 export const getAllprescriptions = async (req, res) => {

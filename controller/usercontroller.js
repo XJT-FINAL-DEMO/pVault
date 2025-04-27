@@ -22,7 +22,7 @@ export const registerUser = async (req, res) => {
         $or: [{ email: value.email }]
     })
     if (user) {
-        return res.status(409).json('Esisting User')
+        return res.status(409).json('Existing User')
     }
     // hash plaintex password
     const hashPassword = bcrypt.hashSync(value.password, 10);
@@ -43,7 +43,7 @@ export const registerUser = async (req, res) => {
 
     // return a response
     res.status(201).json({
-        message: 'Successfully Registerd😊',
+        message: 'Successfully Registered😊',
         user: newUser,
         token
     });
@@ -62,7 +62,7 @@ export const registerDoctor = async (req, res) => {
         $or: [{ email: value.email }]
     })
     if (user) {
-        return res.status(409).json('Esisting User')
+        return res.status(409).json('Existing User')
     }
     // hash plaintex password
     const hashPassword = bcrypt.hashSync(value.password, 10);
@@ -83,7 +83,7 @@ export const registerDoctor = async (req, res) => {
 
     // return a response
     res.status(201).json({
-        message: 'Successfully Registerd😊',
+        message: 'Successfully Registered😊',
         user: newUser,
         token
     });
@@ -120,7 +120,7 @@ export const loginUser = async (req, res) => {
         // compare incoming password with sawved password
         const correctPassword = bcrypt.compareSync(password, user.password);
         if (!correctPassword) {
-            return res.status(401).json('Incorrect credetials 😔')
+            return res.status(401).json('Incorrect credentials 😔')
         }
         // generate access token for user(role will be assigned)
         const token = jwt.sign({ id: user.id, role: role },
@@ -128,7 +128,7 @@ export const loginUser = async (req, res) => {
         );
         // return response
         res.status(200).json({
-            message: 'Welcome Abord😁',
+            message: 'Welcome Aboard😁',
             token,
             user: {
                 id: user.id,
@@ -137,7 +137,7 @@ export const loginUser = async (req, res) => {
         });
     } catch (error) {
         console.error('Login Error:', error); 
-        res.status(500).json({ message: 'Sever Error' });
+        res.status(500).json({ message: 'Server Error' });
 
     }
 }
@@ -161,7 +161,7 @@ export const updateUser = async (req, res) => {
         // return response
         const { password, ...userWithoutPassword } = updateUser.toObject();
         res.status(200).json({
-            message: 'Upadte Successful',
+            message: 'Update Successful',
             data: userWithoutPassword
         });
     } catch (error) {

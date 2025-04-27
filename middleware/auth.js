@@ -1,3 +1,4 @@
+import { doctorsModel } from "../model/doctorsModel.js";
 import { userModel } from "../model/userModel.js";
 import { expressjwt } from "express-jwt";
 
@@ -25,3 +26,28 @@ export const isAuthorized = (roles=[]) => {
         }
     }
 };
+
+
+// AN AUTHORIZATION FOR THE DOCTORS MODEL
+export const Authorized = (roles=[]) => {
+    return async (req, res, next) => {
+        if (!req.auth || !req.auth.id) {
+            return res.status(401).json({error: "Unauthorized:missing authentication infomation "});
+        }
+        const user = await doctorsModel.findById(req.auth.id);
+        if (!user) {
+            return res.status(404).json({error:'Unauthorized, Doctor not Found'})
+        }
+        if (roles?.includes(user.role)) {
+            next();
+        } else {
+            res.status(400).json('Sorry, Not Authorized')
+        }
+    }
+};
+
+
+
+
+
+

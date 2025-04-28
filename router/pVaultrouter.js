@@ -34,7 +34,8 @@ pVaultRouter.get("/get-appointment", isAuthenticated, getAppointments)
 
 pVaultRouter.post("/checkIn/",isAuthenticated, CheckIn)
 
-pVaultRouter.delete("/cancelAppointment/:id", isAuthenticated, isAuthorized(["patient", "doctor", "admin"]), cancelAppointment)
+pVaultRouter.delete("/cancelAppointment/:id", isAuthenticated, cancelAppointment)
+// pVaultRouter.delete("/cancelAppointment/:id", isAuthenticated,Authorized(["doctor"]), cancelAppointment)
 
 
 //---------------------------------------------------------------------------------

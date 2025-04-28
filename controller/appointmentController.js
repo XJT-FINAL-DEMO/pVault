@@ -1,7 +1,7 @@
 import { appointmentsModel } from '../model/appointmentsModel.js';
 import { doctorsModel } from '../model/doctorsModel.js';
 import { userModel } from '../model/userModel.js';
-import { appointmentConfirmationMailTemplate, mailTransporter } from '../utils/mailing.js';
+import { appointmentConfirmationMailTemplate, mailTransporter, } from '../utils/mailing.js';
 import jwt from 'jsonwebtoken';
 
 
@@ -43,7 +43,7 @@ export const bookAppointment = async (req, res) => {
             appointmentId: newAppointment._id, type: 'Confirmation'
         }, process.env.JWT_SECRET, { expiresIn: '30minutes' })
 
-        console.log("Generated Confirmation Token:", confirmationToken);
+        // console.log("Generated Confirmation Token:", confirmationToken);
         //send appointment confirmation email to user
         const confirmationLink = `${process.env.BASE_URL}/confirm/${confirmationToken}`;
         const htmlContent = appointmentConfirmationMailTemplate.replace('{{lastName}}', user.lastName).replace('{{confirmationLink}}', `<a href="${confirmationLink}">Confirm</a>`)
@@ -65,7 +65,6 @@ export const bookAppointment = async (req, res) => {
 
 };
 
-// confirm appointment 
 // export const confirmAppointment = async (req, res) => {
 //     try {
 //         const { appointmentId } = req.params;
@@ -154,53 +153,69 @@ export const CheckIn = async (req, res) => {
     try {
         // get the appointment info by id from patient
         const { appointmentId } = req.body;
-        const appointment = await patientFindAppointment(appointmentId);
+        const appointment = await appointmentsModel.findById(appointmentId).populate({
+            path: 'doctor',
+            populate: { path: 'facility', Select: 'name' }
+        }).populate('user', 'email');
 
         if (!appointment) {
             return res.status(400).json({ error: "Sorry, we couldn't find appointment" });
         } appointment.status = "Checked In";
 
         // updat queue poisition
-        appointment.queuePosition = Math.floor(Math.random() * 3) + 1;
+        appointment.queuePosition = Math.floor(Math.random() * 10) + 1;
 
-        appointment.location = "treys house";
+        appointment.location = "";
 
-        await patientnewAppointment.save(appointment);
+        if (appointment.user && appointment.doctor.facility && appointment.doctor.facility.lenght) {
+            appointment.location = appointment.doctor.facility[0].name;
+        }
 
-        // send confirmation
-        await confirmSendEmail(appointment.userEmail, appointment);
-        // confirmation details
+        await appointment.save();
+
+        // if (appointment.user && appointment.user.email) {
+        //     await confirmSendEmail(appointment.user.email, appointment);
+        // } else {
+        //     console.warn('User email not found')
+        // }
+        //email is giving an is not a funtion error
+
+        //send confirmation details
         res.json({
             message: "You've been Checked In",
             appointment: {
-                queuePosition: appointment.queuePosition, location: appointment.location
+                queuePosition: appointment.queuePosition,
+                location: appointment.location
             }
         });
 
         // update real time queue positiion
         queueRealTimeUpdate(appointmentId, appointment.queuePosition);
+        if (appointment.doctor && appointment.doctor.facility && appointment.doctor.fscility.length > 0) {
+            appointment.location = appointment.doctor.facility[0].name;
+        }
 
     } catch (error) {
-        res.status(500).json({ error: "Something went Wrong, Try again later.!" });
+        res.status(500).json({ error: "Something went Wrong, Try again!" });
     }
 }
 
 // get/view user appointment details 
 export const getAppointments = async (req, res) => {
     try {
-        const { userId, role } = req.auth;
+        const userId = req.auth.id;
+        const role = req.auth.role;
         let appointments;
-        if (role == "patient") {
+        if (role === "patient") {
             appointments = await appointmentsModel.find({ user: userId }).populate('doctor', 'name speciality');
         }
 
-        else if (role == "doctor") {
-            console.log("req.auth:", req.auth.id);
-            appointments = await appointmentsModel.find({ doctor: userId }).populate('patient', 'name email');
+        else if (role === "doctor") {
+            appointments = await appointmentsModel.find({ doctor: userId }).populate('user', 'name email');
             console.log("Retrieved appointments:", appointments);
         }
 
-        else if (role == "pharmacist") {
+        else if (role === "pharmacist") {
             appointments = await appointmentsModel.find({ pharmacist: userId }).populate('pharmacist', 'name email');
         }
 
@@ -212,28 +227,26 @@ export const getAppointments = async (req, res) => {
             appointments
 
         })
-        console.log(appointments)
     } catch (error) {
-        console.error("Error fetching appointments:", error);
         res.status(500).json({ error: "It seems the booking is stuck" })
-
-
     }
 }
 
 // delete appointment [delete]
 export const cancelAppointment = async (req, res, next) => {
+    console.log("req.params:", req.params);
     try {
         // find appointment
         const appointment = await appointmentsModel.findById(req.params.Id).populate('user doctor', 'id');
-        if (!appointment) {
+        if (appointment) {
             return res.status(404).json({ error: "Appointment not Found" });
         }
         const isPatient = req.auth.id == appointment.user._id.toString();
-        const isDoctor = req.auth.id == appointment.user._id.toString();
+        const isDoctor = req.auth.id == appointment.doctor._id.toString();
         if (!isPatient && !isDoctor) {
-            return res.status(403).json({ error: "Unauthorized, You can delte your Own appointments Only" });
+            return res.status(403).json({ error: "Unauthorized, You can delte your Own appointments Only"});
         }
+        //soft delete
         appointment.isDeleted = true;
         appointment.deletedAt = new Date();
         await appointment.save();
@@ -241,7 +254,7 @@ export const cancelAppointment = async (req, res, next) => {
             message: "Appointment cancelled Successfully",
             data: appointment,
             deletedAt: appointment.deletedAt
-        });;
+        });console.log("appointment:", appointment);
 
 
 

@@ -8,7 +8,7 @@ const doctorsSchema = new Schema({
     specialization:{type:String, required:true},
     license:{type: String, required: true},
     facility: [{type:mongoose.Schema.Types.ObjectId, ref:'Facility', required: true}],
-    role:{type:String, enum:['pharmacist','doctor'], required: true},
+    role:{type:String, enum:['pharmacist','doctor','admin'], required: true},
     availability:[{
         day: [String], //days available
         slots:[String] //times available

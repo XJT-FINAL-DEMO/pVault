@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { addFacility, getAllFacilities, getfacilityByUser, getNearbyFacility, updateFacility } from "../controller/facilitiesController.js";
-import { addPrescription, getAllprescriptions, updatePrescription } from "../controller/prescriptController.js";
+import { addPrescription, deletePrescription, getAllprescriptions, updatePrescription } from "../controller/prescriptController.js";
 import { bookAppointment, getAppointments,CheckIn, reschedulAppointment, cancelAppointment } from "../controller/appointmentController.js";
 import { Authorized, isAuthenticated, isAuthorized } from "../middleware/auth.js";
 import { createBlog, deleteBlog, getAuthorBlogs, getBlog, getBlogs, updateBlog } from "../controller/blogsController.js";
@@ -52,10 +52,11 @@ pVaultRouter.delete("/medicine/:id", isAuthenticated,Authorized(["pharmacist","a
 // PRESCRIPTIONS
 pVaultRouter.post("/prescriptions",prescriptionUpload.array("prescriptions"), isAuthenticated,isAuthorized(['patient', 'doctor', 'admin']), addPrescription )
 
-pVaultRouter.get("/prescriptions", isAuthenticated,getAllprescriptions)
+pVaultRouter.get("/prescriptions",isAuthenticated,isAuthorized(['patient','pharmacist', 'doctor','admin']),getAllprescriptions)
 
 pVaultRouter.patch("/prescription/:id", isAuthenticated, updatePrescription)
 
+pVaultRouter.delete("/prescription/:id", isAuthenticated,Authorized(["pharmacist",'doctor',"admin"]), deletePrescription)
 
 //---------------------------------------------------------------------------------
 //BLOGS ROUTES

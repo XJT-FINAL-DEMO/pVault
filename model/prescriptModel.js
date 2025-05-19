@@ -3,15 +3,14 @@ import mongoose, { Schema, model } from 'mongoose';
 const prescriptionSchema = new Schema({
     patient: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     pharmacist: { type: mongoose.Schema.Types.ObjectId, ref: 'Doctor', required: true },
-    pictures: [{ type: String, required: true }],
+    pictures: [String],
     status: {
         type: String,
         enum: ['pending', 'approved', 'rejected', 'deilivering', 'delivered'], 
         default: "pending"
     },
-    medicines: [{
-        medicine: { type: mongoose.Schema.Types.ObjectId, ref: "Medication" }, quantity: Number
-    }],
+    medicines: {type: mongoose.Schema.Types.ObjectId, ref: "Medication" },
+    quantity: {type: Number},
     deliveryAddress: { type: String, required: true },
     deliveryStatus: {
         enum: ['pending', 'delivering', 'delivered']

@@ -1,32 +1,29 @@
 import { cloudinary } from "../middleware/upload.js";
 import { prescriptModel } from "../model/prescriptModel.js";
+import mongoose from "mongoose";
 
 // Upload/post prescription .post/api/prescriptions 
 export const addPrescription = async (req, res) => {
     try {
-
-        if (!req.files || req.files.length == 0) {
+        if (!req.files || req.files.length === 0) {
             return res.status(400).json({ error: "No files Uploaded!" });
         }
-        const UploadPromise = req.files.map(file => {
-            return cloudinary.uploader.upload(file.path, {
-                folder: 'prescriptions', resource_type: 'auto'
-            });
-        });
-        const cloudinaryResults = await Promise.all(UploadPromise);
-        const fileUrls = cloudinaryResults.map(result => result.secure_url)
-        const { error, value } = prescriptModel.validate({
-            ...req.body, pictures: fileUrls
-        }, { abortEarly: false })
-        if (error) {
-            return res.status(422).json({ message: "validation Error", status: error.details });
+        const fileUrls = req.files.map(file => file.path);
+        const prescrioptionData = {
+            ...req.body, pictures: fileUrls, userId: req.auth.id
+        };
+
+        const newPrescription = new prescriptModel(prescrioptionData);
+        const validationError = newPrescription.validateSync();
+        if (validationError) {
+            return res.status(422).json({ message: 'Validation error', status: validationError.errors })
         }
-        const result = await prescriptModel.create({
-            ...value,
-            userId: req.auth.id
-        })
-        return res.status(201).json(result)
+
+        const result = await prescriptModel.create(prescrioptionData);
+        return res.status(201).json(result.toObject());
+
     } catch (error) {
+        console.error("Error creating prescription:", error);
         if (error.message.includes('JPG/PDF')) {
             return res.status(4409).json({ message: error.message })
         }
@@ -36,72 +33,25 @@ export const addPrescription = async (req, res) => {
 }
 
 
-//NEW PRESCRIPTION CONTROLLER
-    // export const addPrescription = async (req, res) => {
-    //     try {
-    //         // Files are already uploaded to Cloudinary by Multer middleware
-    //         if (!req.files || req.files.length === 0) {
-    //             return res.status(400).json({ message: "No files uploaded" });
-    //         }
-    
-    //         // Cloudinary info is already in req.files
-    //         const fileUrls = req.files.map(file => file.path); // path contains Cloudinary URL
-    
-    //         // Validate request body
-    //         const { error, value } = prescriptModel.validate({
-    //             ...req.body,
-    //             pictures: fileUrls
-    //         }, { abortEarly: false });
-    
-    //         if (error) {
-    //             return res.status(422).json({ 
-    //                 message: "Validation error",
-    //                 errors: error.details 
-    //             });
-    //         }
-    
-    //         // Create prescription record
-    //         const newPrescription = await prescriptModel.create({
-    //             ...value,
-    //             userId: req.auth.id
-    //         });
-    
-    //         return res.status(201).json({
-    //             message: "Prescription uploaded successfully",
-    //             data: newPrescription
-    //         });
-    
-    //     } catch (error) {
-    //         console.error("Prescription upload error:", error);
-            
-    //         if (error.message.includes('JPG/PDF')) {
-    //             return res.status(400).json({ 
-    //                 message: "Invalid file type. Only JPG/PDF allowed" 
-    //             });
-    //         }
-            
-    //         return res.status(500).json({ 
-    //             message: "Internal server error",
-    //             error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    //         });
-    //     }
-    // }
-
-
 // list/get all prescription by filter of the status/pharmacist
 export const getAllprescriptions = async (req, res) => {
     try {
         // get filter query
+
         const userId = req.auth.id; //authrized checking
         const userRole = req.auth.role;
+        // console.log("req.auth:", req.auth);
 
 
         const filter = {};
         if (userRole == 'pharmacist') {
-            filter.pharmacist = userId;
-        } else if (userRole == 'patitent') {
-            filter.patient = userId;
-        } else { return res.status(403).json({ error: 'Unauthorized access' }) }
+            filter.pharmacist = new mongoose.Types.ObjectId(userId);
+        } else if (userRole == 'patient') {
+            filter.patient = new mongoose.Types.ObjectId(userId);
+        } else if (userRole == 'doctor') {
+            filter.pharmacist = new mongoose.Types.ObjectId(userId);
+
+        }else { return res.status(403).json({ error: 'Unauthorized access' }) }
 
         const { status } = req.query;
         if (status) {
@@ -109,11 +59,14 @@ export const getAllprescriptions = async (req, res) => {
                 return res.status(400).json({ error: "invalide status filter" });
             }
         } filter.status = status;
-        const prescriptions = await prescriptions.find(filter)
+        //   console.log("Filter being used:", filter);
+        const prescriptions = await prescriptModel.find(filter)
             .populate('patient', 'name email')
             .populate('pharmacist', 'name email pharmacyName')
-            .populate('medicines.medicine', 'name price dosage')
+            .populate('medicines', 'name price dosage')
             .sort({ createdAt: -1 }); //latest first
+
+            console.log("Prescriptions found:", prescriptions); // Add this line
 
         if (!prescriptions.length == 0) {
             return res.status(404).json({ message: "No Prescriptions Found!" })
@@ -186,10 +139,10 @@ export const updatePrescription = async (req, res) => {
         });
 
     } catch (error) {
-        if (error.name === 'CastError'){
-            return res.status(400).json({error:'Invalid Prescription ID!'});
+        if (error.name === 'CastError') {
+            return res.status(400).json({ error: 'Invalid Prescription ID!' });
         }
-        res.status(500).json({error:"server error: " +error.message});
+        res.status(500).json({ error: "server error: " + error.message });
 
     }
 }
@@ -199,7 +152,7 @@ export const deletePrescription = async (req, res) => {
     try {
         const prescription = await prescriptModel.findByIdAndDelete(req.params.id)
         if (!prescription) {
-            return res.status(404).json({message: "Prescription Not Found"})
+            return res.status(404).json({ message: "Prescription Not Found" })
         }
         res.status(201).json({
             message: "Advert Permanently Deleted",
@@ -207,6 +160,6 @@ export const deletePrescription = async (req, res) => {
             status: 'success'
         })
     } catch (error) {
-        return res.status(500).json({message:"Request Not Successful, Refreh the App " + error.message})
+        return res.status(500).json({ message: "Request Not Successful, Refreh the App " + error.message })
     }
 }

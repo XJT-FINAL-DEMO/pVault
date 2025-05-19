@@ -2,8 +2,6 @@ import { cloudinary } from "../middleware/upload.js";
 import { prescriptModel } from "../model/prescriptModel.js";
 
 // Upload/post prescription .post/api/prescriptions 
-
-// XVIEN'S ADD PRESCRIPTION CONTROLLER
 export const addPrescription = async (req, res) => {
     try {
 

@@ -233,35 +233,39 @@ export const getAppointments = async (req, res) => {
 }
 
 // delete appointment [delete]
-export const cancelAppointment = async (req, res, next) => {
-    console.log("req.params:", req.params);
+export const cancelAppointment = async (req, res) => {
+    console.log("The ID we received is:", req.params.id);
     try {
-        // find appointment
-        const appointment = await appointmentsModel.findById(req.params.Id).populate('user doctor', 'id');
-        if (appointment) {
+        const appointment = await appointmentsModel.findByIdAndDelete({ _id: req.params.id });
+        if (!appointment) {
             return res.status(404).json({ error: "Appointment not Found" });
         }
-        const isPatient = req.auth.id == appointment.user._id.toString();
-        const isDoctor = req.auth.id == appointment.doctor._id.toString();
-        if (!isPatient && !isDoctor) {
-            return res.status(403).json({ error: "Unauthorized, You can delte your Own appointments Only"});
-        }
-        //soft delete
-        appointment.isDeleted = true;
-        appointment.deletedAt = new Date();
-        await appointment.save();
-        res.status(200).json({
-            message: "Appointment cancelled Successfully",
-            data: appointment,
-            deletedAt: appointment.deletedAt
-        });console.log("appointment:", appointment);
+        res.json({ message: 'Appointment Canceled Successfully' });
+
+        // // find appointment
+        // const appointment = await appointmentsModel.findByIdAndDelete(req.params.Id);
+        // if (!appointment) {
+        //     return res.status(404).json({ error: "Appointment not Found" });
+        // }
+        // const isPatient = req.auth.id == appointment.user._id.toString();
+        // const isDoctor = req.auth.id == appointment.doctor._id.toString();
+        // if (!isPatient && !isDoctor) {
+        //     return res.status(403).json({ error: "Unauthorized, to delete this appointment!" });
+        // }
+
+        // //soft delete
+        // appointment.isDeleted = true;
+        // appointment.deletedAt = new Date();
+        // await appointment.save();
+        // res.status(200).json({
+        //     message: "Appointment cancelled Successfully",
+        //     data: appointment,
+        //     deletedAt: appointment.deletedAt
+        // }); console.log("appointment:", appointment);
 
 
 
     } catch (error) {
-        if (error.name = 'CastError') {
-            return res.status(400).json({ error: 'Malformed Appointment id' });
-        }
         console.error('Delete appointment error', error);
         res.status(500).json({ error: "Failed to cancel appointment, please try again later" });
     }

@@ -20,7 +20,7 @@ const prescriptionSchema = new Schema({
     timestamps: true,
     toJSON: {
         virtuals: true,
-        transform: (doc, ret) => {
+        transform: (ret) => {
             ret.id = ret._id.toString()
             delete ret._id;
             delete ret.__v;
